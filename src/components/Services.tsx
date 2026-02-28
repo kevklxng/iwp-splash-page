@@ -1,4 +1,5 @@
-import { Hammer, Pencil, Wrench } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Hammer, Pencil, Wrench } from 'lucide-react'
 
 const services = [
   {
@@ -6,24 +7,27 @@ const services = [
     title: 'Design & Planning',
     description:
       'Collaborative design process from initial concept through final blueprints. We help you visualize every detail before construction begins.',
+    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80',
   },
   {
     icon: Hammer,
     title: 'New Construction',
     description:
       'Full-service custom home building. From site preparation to final walkthrough, we manage every phase with meticulous attention.',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80',
   },
   {
     icon: Wrench,
     title: 'Renovations & Additions',
     description:
       'Transform your existing space with thoughtful renovations or seamless additions that honor your home\'s character.',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
   },
 ]
 
 export default function Services() {
   return (
-    <section id="services" className="py-24 bg-white">
+    <section id="services" className="py-24 bg-stone-100">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-900 tracking-tight">
@@ -35,20 +39,37 @@ export default function Services() {
           </p>
         </div>
 
-        <div className="mt-20 grid gap-12 md:grid-cols-3">
+        <div className="mt-20 grid gap-8 md:grid-cols-3">
           {services.map((item) => (
-            <div
+            <article
               key={item.title}
-              className="relative rounded-sm border border-warm-200 bg-warm-50/50 p-8 hover:border-stone-300 transition-colors"
+              className="group relative overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-lg transition-all duration-300"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-stone-900 text-amber-100">
-                <item.icon size={28} />
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src={item.image}
+                  alt=""
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent" />
+                <div className="absolute bottom-4 left-4 flex h-12 w-12 items-center justify-center rounded-lg bg-white/90 text-stone-900 shadow-md">
+                  <item.icon size={24} />
+                </div>
               </div>
-              <h3 className="mt-6 font-serif text-xl font-semibold text-stone-900">
-                {item.title}
-              </h3>
-              <p className="mt-4 text-stone-600 leading-relaxed">{item.description}</p>
-            </div>
+              <div className="p-6">
+                <h3 className="font-serif text-xl font-semibold text-stone-900">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-stone-600 leading-relaxed">{item.description}</p>
+                <Link
+                  to="/contact"
+                  className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-amber-700 hover:text-amber-800 transition-colors"
+                >
+                  Learn More
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+            </article>
           ))}
         </div>
       </div>

@@ -1,34 +1,53 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
-  { href: '#about', label: 'About' },
-  { href: '#services', label: 'Services' },
-  { href: '#gallery', label: 'Gallery' },
-  { href: '#contact', label: 'Contact' },
+  { to: '/', label: 'Home' },
+  { to: '/about', label: 'About' },
+  { to: '/services', label: 'Services' },
+  { to: '/gallery', label: 'Gallery' },
+  { to: '/contact', label: 'Contact' },
 ]
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-warm-50/95 backdrop-blur-sm border-b border-warm-200/50">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 bg-warm-50/95 backdrop-blur-sm border-b border-warm-200/50 transition-shadow duration-200 ${
+        scrolled ? 'shadow-md' : ''
+      }`}
+    >
       <nav className="mx-auto max-w-7xl px-6 lg:px-8" aria-label="Main navigation">
         <div className="flex h-20 items-center justify-between">
-          <a href="#" className="font-serif text-2xl font-semibold text-stone-900 tracking-tight">
+          <Link to="/" className="font-serif text-2xl font-semibold text-stone-900 tracking-tight">
             Templeton Custom Homes
-          </a>
+          </Link>
 
-          <div className="hidden md:flex md:gap-10">
+          <div className="hidden md:flex md:items-center md:gap-10">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+              <Link
+                key={link.to}
+                to={link.to}
                 className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-sm font-medium rounded-sm transition-colors"
+            >
+              Get a Quote
+            </Link>
           </div>
 
           <button
@@ -45,15 +64,22 @@ export default function Header() {
           <div className="md:hidden py-4 border-t border-warm-200">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
+                <Link
+                  key={link.to}
+                  to={link.to}
                   className="text-base font-medium text-stone-600 hover:text-stone-900"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center px-5 py-3 bg-stone-900 hover:bg-stone-800 text-white text-sm font-medium rounded-sm transition-colors w-fit"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Get a Quote
+              </Link>
             </div>
           </div>
         )}

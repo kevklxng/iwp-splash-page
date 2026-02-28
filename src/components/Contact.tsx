@@ -42,59 +42,59 @@ export default function Contact() {
             </div>
           </div>
 
-          <form className="rounded-sm border border-warm-200 bg-warm-50/30 p-8 lg:p-10">
+          <form className="rounded-lg bg-stone-900 p-8 lg:p-10 shadow-xl">
             <div className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-stone-700">
+                <label htmlFor="name" className="block text-sm font-medium text-stone-200">
                   Name
                 </label>
                 <input
                   type="text"
                   id="name"
                   name="name"
-                  className="mt-2 block w-full rounded-sm border border-stone-300 px-4 py-3 text-stone-900 placeholder-stone-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  className="mt-2 block w-full rounded-sm border border-stone-600 bg-stone-800 px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                   placeholder="Your name"
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-stone-700">
+                <label htmlFor="email" className="block text-sm font-medium text-stone-200">
                   Email
                 </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
-                  className="mt-2 block w-full rounded-sm border border-stone-300 px-4 py-3 text-stone-900 placeholder-stone-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  className="mt-2 block w-full rounded-sm border border-stone-600 bg-stone-800 px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                   placeholder="you@example.com"
                 />
               </div>
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-stone-700">
+                <label htmlFor="phone" className="block text-sm font-medium text-stone-200">
                   Phone
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
-                  className="mt-2 block w-full rounded-sm border border-stone-300 px-4 py-3 text-stone-900 placeholder-stone-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  className="mt-2 block w-full rounded-sm border border-stone-600 bg-stone-800 px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                   placeholder="(555) 000-0000"
                 />
               </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-stone-700">
+                <label htmlFor="message" className="block text-sm font-medium text-stone-200">
                   Tell us about your project
                 </label>
                 <textarea
                   id="message"
                   name="message"
                   rows={4}
-                  className="mt-2 block w-full rounded-sm border border-stone-300 px-4 py-3 text-stone-900 placeholder-stone-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  className="mt-2 block w-full rounded-sm border border-stone-600 bg-stone-800 px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                   placeholder="Describe your vision, timeline, or any questions..."
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-4 px-6 bg-stone-900 hover:bg-stone-800 text-white font-medium rounded-sm transition-colors"
+                className="w-full py-4 px-6 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-sm transition-colors"
               >
                 Send Message
               </button>
