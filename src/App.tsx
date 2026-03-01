@@ -1,13 +1,11 @@
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import Header from './components/Header'
-import ScrollToTop from './components/ScrollToTop'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import ServicesPage from './pages/ServicesPage'
 import GalleryPage from './pages/GalleryPage'
 import ContactPage from './pages/ContactPage'
-import NotFoundPage from './pages/NotFoundPage'
 
 function Layout() {
   return (
@@ -22,7 +20,6 @@ function Layout() {
 function App() {
   return (
     <BrowserRouter>
-      <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
@@ -30,7 +27,6 @@ function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

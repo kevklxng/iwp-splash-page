@@ -1,7 +1,8 @@
 import { useState, FormEvent } from 'react'
 import { Mail, Phone, MapPin } from 'lucide-react'
 
-const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY
+// Get your access key at web3forms.com — enter joel@templetoncustomhomes.com to receive it by email
+const WEB3FORMS_ACCESS_KEY = 'a78843d2-1b56-43cc-8a38-1d6408e8291f'
 
 export default function Contact() {
   const [submitting, setSubmitting] = useState(false)
@@ -16,7 +17,7 @@ export default function Contact() {
     const form = e.currentTarget
     const formData = new FormData(form)
     const payload = {
-      access_key: WEB3FORMS_ACCESS_KEY || '',
+      access_key: WEB3FORMS_ACCESS_KEY,
       subject: 'New Contact Form Submission - TCH Website',
       from_name: 'TCH Website Contact Form',
       name: formData.get('name'),

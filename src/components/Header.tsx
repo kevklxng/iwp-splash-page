@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
@@ -34,16 +34,13 @@ export default function Header() {
 
           <div className="hidden md:flex md:items-center md:gap-10">
             {navLinks.map((link) => (
-              <NavLink
+              <Link
                 key={link.to}
                 to={link.to}
-                end={link.to === '/'}
-                className={({ isActive }) =>
-                  `text-sm font-medium transition-colors ${isActive ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'}`
-                }
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
               >
                 {link.label}
-              </NavLink>
+              </Link>
             ))}
             <Link
               to="/contact"
@@ -67,17 +64,14 @@ export default function Header() {
           <div className="md:hidden py-4 border-t border-stone-200 bg-warm-50">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <NavLink
+                <Link
                   key={link.to}
                   to={link.to}
-                  end={link.to === '/'}
-                  className={({ isActive }) =>
-                    `text-base font-medium ${isActive ? 'text-stone-900' : 'text-stone-600 hover:text-stone-900'}`
-                  }
+                  className="text-base font-medium text-stone-600 hover:text-stone-900"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
-                </NavLink>
+                </Link>
               ))}
               <Link
                 to="/contact"
