@@ -13,12 +13,12 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="bg-stone-950 py-16">
+    <footer className="bg-stone-900 py-16">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-stone-500">Connect</p>
-            <Link to="/" className="mt-4 block font-serif text-xl font-semibold text-white tracking-tight hover:text-amber-100 transition-colors">
+            <Link to="/" className="mt-4 block font-serif text-xl font-medium text-white tracking-tight hover:text-stone-200 transition-colors">
               Templeton Custom Homes
             </Link>
             <p className="mt-2 text-sm text-stone-400">
@@ -43,30 +43,34 @@ export default function Footer() {
             <p className="text-xs font-medium uppercase tracking-wider text-stone-500">Visit</p>
             <div className="mt-4 space-y-3 text-sm text-stone-400">
               <a
-                href="mailto:info@templetoncustomhomes.com"
+                href="mailto:joel@templetoncustomhomes.com"
                 className="flex items-center gap-3 hover:text-white transition-colors"
               >
                 <Mail size={18} className="shrink-0" />
-                info@templetoncustomhomes.com
+                joel@templetoncustomhomes.com
               </a>
               <a
-                href="tel:+15551234567"
+                href="tel:+19499332459"
                 className="flex items-center gap-3 hover:text-white transition-colors"
               >
                 <Phone size={18} className="shrink-0" />
-                (555) 123-4567
+                (949) 933-2459
               </a>
               <div className="flex items-center gap-3">
                 <MapPin size={18} className="shrink-0" />
-                Serving the greater area
+                Serving Newport Beach & Costa Mesa
               </div>
             </div>
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-stone-800">
-          <p className="text-sm text-stone-500">
+        <div className="mt-12 pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-stone-500">
             © {currentYear} Templeton Custom Homes. All rights reserved.
           </p>
+          <div className="flex gap-6">
+            <a href="#" className="text-xs text-stone-500 hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" className="text-xs text-stone-500 hover:text-white transition-colors">Terms of Service</a>
+          </div>
         </div>
       </div>
     </footer>

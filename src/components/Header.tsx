@@ -22,8 +22,8 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-warm-50/95 backdrop-blur-sm border-b border-warm-200/50 transition-shadow duration-200 ${
-        scrolled ? 'shadow-md' : ''
+      className={`fixed top-0 left-0 right-0 z-50 bg-warm-50/90 backdrop-blur-md transition-all duration-300 ${
+        scrolled ? 'shadow-sm bg-warm-50/95' : ''
       }`}
     >
       <nav className="mx-auto max-w-7xl px-6 lg:px-8" aria-label="Main navigation">
@@ -44,7 +44,7 @@ export default function Header() {
             ))}
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-sm font-medium rounded-sm transition-colors"
+              className="inline-flex items-center justify-center px-6 py-2.5 bg-stone-900 text-white text-sm font-medium rounded-sm hover:bg-stone-800 transition-colors"
             >
               Get a Quote
             </Link>
@@ -52,7 +52,7 @@ export default function Header() {
 
           <button
             type="button"
-            className="md:hidden p-2 -m-2 text-stone-600"
+            className="md:hidden p-2 -m-2 text-stone-600 hover:text-stone-900 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
           >
@@ -61,7 +61,7 @@ export default function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-warm-200">
+          <div className="md:hidden py-4 border-t border-stone-200 bg-warm-50">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link
@@ -75,7 +75,7 @@ export default function Header() {
               ))}
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center px-5 py-3 bg-stone-900 hover:bg-stone-800 text-white text-sm font-medium rounded-sm transition-colors w-fit"
+                className="inline-flex items-center justify-center px-5 py-3 bg-stone-900 text-white text-sm font-medium rounded-sm transition-colors w-full"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Get a Quote
