@@ -34,7 +34,7 @@ export default function Hero() {
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/contact"
-            className="inline-flex items-center justify-center px-8 py-4 bg-white text-stone-900 font-medium rounded-sm hover:bg-stone-100 transition-colors"
+            className="inline-flex items-center justify-center px-8 py-4 bg-warm-50 text-stone-900 font-medium rounded-sm hover:bg-warm-100 transition-colors"
           >
             Start Your Project
           </Link>
