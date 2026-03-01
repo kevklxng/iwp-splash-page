@@ -24,12 +24,13 @@ export default function About() {
           <div>
             <h2 className="font-serif text-4xl sm:text-5xl font-semibold text-stone-900 tracking-tight">
               Built on Tradition,<br />
-              <span className="text-stone-600">Designed for Tomorrow</span>
+              <span className="text-stone-500">Designed for Tomorrow</span>
             </h2>
-            <p className="mt-6 text-lg text-stone-600 leading-relaxed">
-              Templeton Custom Homes brings decades of experience and a passion for quality to every
-              project. We believe a home should reflect the people who live in it—their style, their
-              needs, their story. From concept to keys, we're with you every step of the way.
+            <p className="mt-6 text-lg text-stone-700 leading-relaxed">
+              Templeton Custom Homes is a design-build builder: we handle both design and construction
+              under one roof. We bring a passion for quality to every project and believe a home
+              should reflect the people who live in it—their style, their needs, their story. From
+              concept to keys, we're with you every step of the way.
             </p>
           </div>
           <div className="relative aspect-[4/3] lg:aspect-square overflow-hidden rounded-sm">
@@ -45,7 +46,7 @@ export default function About() {
           {values.map((item) => (
             <div
               key={item.title}
-              className="pl-6 border-l-4 border-amber-600/80 group-hover:border-amber-600 transition-colors"
+              className="pl-6 border-l-4 border-blue-700 group-hover:border-blue-600 transition-colors"
             >
               <h3 className="font-serif text-xl font-semibold text-stone-900">
                 {item.title}

@@ -7,8 +7,9 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    @apply bg-warm-50 text-stone-900;
   }
   body {
-    @apply font-sans text-stone-800 antialiased;
+    @apply font-sans antialiased bg-warm-50 text-stone-600;
   }
 }
