@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { Source_Serif_4 } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-source-serif",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tch.placeholder"),
@@ -14,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const gaId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
   return (
-    <html lang="en">
+    <html lang="en" className={sourceSerif.variable}>
       <body>
         {gaId ? (
           <>

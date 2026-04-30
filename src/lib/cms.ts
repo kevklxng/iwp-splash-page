@@ -1,4 +1,5 @@
 import { groq } from "next-sanity";
+import { cache } from "react";
 import { sanityClient } from "../sanity/client";
 import { hasSanity } from "../sanity/env";
 import { placeholderPartners, placeholderProjects, type Partner, type Project } from "./content";
@@ -12,27 +13,34 @@ const partnersQuery = groq`*[_type == "partner"] | order(order asc){
   _id,name,category,role,website,note
 }`;
 
-export async function getProjects(): Promise<Project[]> {
+const featuredProjectsQuery = groq`*[_type == "project" && featured == true] | order(order asc, year desc)[0...3]{
+  _id,title,"slug":slug.current,location,year,type,style,description,featured,isPlaceholder,
+  "heroImage": heroImage.asset->url
+}`;
+
+export const getProjects = cache(async (): Promise<Project[]> => {
   if (!hasSanity) return placeholderProjects;
   const rows = await sanityClient.fetch<Project[]>(projectsQuery);
   return rows?.length ? rows : placeholderProjects;
-}
+});
 
-export async function getFeaturedProjects(): Promise<Project[]> {
-  const projects = await getProjects();
-  return projects.filter((p) => p.featured).slice(0, 3);
-}
+export const getFeaturedProjects = cache(async (): Promise<Project[]> => {
+  const fallback = placeholderProjects.filter((p) => p.featured).slice(0, 3);
+  if (!hasSanity) return fallback;
+  const rows = await sanityClient.fetch<Project[]>(featuredProjectsQuery);
+  return rows?.length ? rows : fallback;
+});
 
-export async function getProjectBySlug(slug: string): Promise<Project | undefined> {
+export const getProjectBySlug = cache(async (slug: string): Promise<Project | undefined> => {
   const projects = await getProjects();
   return projects.find((p) => p.slug === slug);
-}
+});
 
-export async function getPartners(): Promise<Partner[]> {
+export const getPartners = cache(async (): Promise<Partner[]> => {
   if (!hasSanity) return placeholderPartners;
   const rows = await sanityClient.fetch<Partner[]>(partnersQuery);
   return rows?.length ? rows : placeholderPartners;
-}
+});
 
 export const defaultPageContent = {
   home: {

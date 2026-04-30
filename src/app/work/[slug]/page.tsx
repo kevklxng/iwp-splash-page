@@ -30,7 +30,15 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   return (
     <article>
-      <Image src={project.heroImage} alt={`${project.title} hero image`} width={2200} height={1200} className="aspect-[16/9] w-full object-cover" priority />
+      <Image
+        src={project.heroImage}
+        alt={`${project.title} hero image`}
+        width={2200}
+        height={1200}
+        sizes="100vw"
+        className="aspect-[16/9] w-full object-cover"
+        priority
+      />
       <div className="mx-auto max-w-5xl px-6 py-12 lg:px-8 lg:py-16">
         <h1 className="text-4xl lg:text-5xl">{project.title}</h1>
         <p className="mt-3 text-coastal-muted">
@@ -39,8 +47,22 @@ export default async function ProjectDetailPage({ params }: Props) {
         </p>
         <p className="mt-8 text-lg leading-relaxed text-coastal-muted">{project.description}</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <Image src={project.heroImage} alt={`${project.title} gallery placeholder image one`} width={1000} height={700} className="rounded object-cover" />
-          <Image src={project.heroImage} alt={`${project.title} gallery placeholder image two`} width={1000} height={700} className="rounded object-cover" />
+          <Image
+            src={project.heroImage}
+            alt={`${project.title} gallery placeholder image one`}
+            width={1000}
+            height={700}
+            sizes="(min-width: 640px) 50vw, 100vw"
+            className="rounded object-cover"
+          />
+          <Image
+            src={project.heroImage}
+            alt={`${project.title} gallery placeholder image two`}
+            width={1000}
+            height={700}
+            sizes="(min-width: 640px) 50vw, 100vw"
+            className="rounded object-cover"
+          />
         </div>
         <div className="mt-10 border border-coastal-line p-5 text-sm text-coastal-muted">
           [PLACEHOLDER: Optional details panel - square footage, bedrooms, baths, completion timeline, partner credits.]

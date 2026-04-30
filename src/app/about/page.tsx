@@ -25,6 +25,7 @@ export default function AboutPage() {
           alt="Placeholder portrait representing Joel Templeton"
           width={900}
           height={1200}
+          sizes="(min-width: 1024px) 40vw, 100vw"
           className="rounded object-cover"
         />
       </div>

@@ -20,7 +20,14 @@ export default async function WorkPage() {
       <div className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <Link href={`/work/${project.slug}`} key={project._id} className="group">
-            <Image src={project.heroImage} alt={`${project.title} placeholder project exterior`} width={1000} height={1200} className="aspect-[4/5] w-full rounded object-cover transition-transform duration-200 group-hover:scale-[1.02]" />
+            <Image
+              src={project.heroImage}
+              alt={`${project.title} placeholder project exterior`}
+              width={1000}
+              height={1200}
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+              className="aspect-[4/5] w-full rounded object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            />
             <p className="mt-4 text-xl">{project.title}</p>
             <p className="text-sm text-coastal-muted">
               {project.location} - {project.year} - {project.type}
