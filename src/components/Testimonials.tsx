@@ -31,7 +31,7 @@ export default function Testimonials() {
             Client Stories
           </h2>
           <p className="mt-4 text-lg text-stone-600 font-light">
-            Excellence is not just our standard, it's our signature.
+            Excellence is not just our standard, it&apos;s our signature.
           </p>
         </div>
 
@@ -43,7 +43,7 @@ export default function Testimonials() {
             >
               <blockquote className="flex-grow">
                 <p className="font-serif text-xl text-stone-800 leading-relaxed italic">
-                  "{item.quote}"
+                  &quot;{item.quote}&quot;
                 </p>
               </blockquote>
 
