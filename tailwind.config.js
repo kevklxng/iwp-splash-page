@@ -1,27 +1,23 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+module.exports = {
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        serif: ["Source Serif 4", "Georgia", "serif"],
       },
       colors: {
-        stone: {
-          850: '#1c1917',
-          950: '#0c0a09',
-        },
-        warm: {
-          50: '#faf8f5',
-          100: '#f5f0e8',
-          200: '#e8dfd2',
+        coastal: {
+          bg: "var(--color-bg)",
+          alt: "var(--color-bg-alt)",
+          ink: "var(--color-ink)",
+          muted: "var(--color-ink-muted)",
+          line: "var(--color-line)",
+          accent: "var(--color-accent)",
+          deep: "var(--color-accent-deep)",
         },
       },
     },
   },
   plugins: [],
-}
+};
