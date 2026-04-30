@@ -21,6 +21,7 @@ export default async function HomePage() {
           alt="Placeholder completed Templeton Custom Homes project exterior view"
           width={1600}
           height={1000}
+          sizes="(min-width: 1024px) 50vw, 100vw"
           className="h-full w-full rounded object-cover"
           priority
         />
@@ -37,7 +38,14 @@ export default async function HomePage() {
         <div className="mt-8 grid gap-8 md:grid-cols-3">
           {featured.map((project) => (
             <Link href={`/work/${project.slug}`} key={project._id} className="group">
-              <Image src={project.heroImage} alt={`${project.title} placeholder project image`} width={1000} height={700} className="aspect-[3/2] w-full rounded object-cover transition-transform duration-200 group-hover:scale-[1.02]" />
+              <Image
+                src={project.heroImage}
+                alt={`${project.title} placeholder project image`}
+                width={1000}
+                height={700}
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                className="aspect-[3/2] w-full rounded object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+              />
               <p className="mt-4 text-xl">{project.title}</p>
               <p className="text-sm text-coastal-muted">
                 {project.location} - {project.year}
