@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPartners } from "@/lib/cms";
+import { getPartners, getPartnersPage } from "@/lib/cms";
 
 export const metadata: Metadata = {
   title: "Partners - Templeton Custom Homes",
@@ -7,16 +7,13 @@ export const metadata: Metadata = {
 };
 
 export default async function PartnersPage() {
-  const partners = await getPartners();
+  const [partners, page] = await Promise.all([getPartners(), getPartnersPage()]);
   const categories = ["Architect", "Interior Designer", "Landscape Architect"] as const;
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-20">
       <h1 className="text-4xl lg:text-5xl">Partners</h1>
-      <p className="mt-5 max-w-4xl text-lg leading-relaxed text-coastal-muted">
-        Templeton Custom Homes works closely with the architects, interior designers, and landscape architects who shape
-        coastal Orange County. These are the firms we&apos;ve built with - often, and well.
-      </p>
+      <p className="mt-5 max-w-4xl text-lg leading-relaxed text-coastal-muted">{page.intro}</p>
       <div className="mt-10 grid gap-10 lg:grid-cols-3">
         {categories.map((category) => (
           <section key={category}>

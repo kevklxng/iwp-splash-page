@@ -63,9 +63,13 @@ const homePage = pageType("homePage", "Home Page", [
     type: "array",
     of: [defineArrayMember({ type: "object", fields: [defineField({ name: "title", type: "string" }), defineField({ name: "description", type: "text" })] })],
   }),
+  defineField({ name: "aboutPreviewHeading", type: "string" }),
   defineField({ name: "aboutPreviewText", type: "array", of: [defineArrayMember({ type: "block" })] }),
   defineField({ name: "aboutPreviewPhoto", type: "image", options: { hotspot: true } }),
+  defineField({ name: "aboutLearnMoreLabel", type: "string" }),
+  defineField({ name: "closingCtaHeading", type: "string" }),
   defineField({ name: "closingCtaCopy", type: "string" }),
+  defineField({ name: "closingCtaButtonLabel", type: "string" }),
 ]);
 
 const aboutPage = pageType("aboutPage", "About Page", [
@@ -79,6 +83,7 @@ const processPage = pageType("processPage", "Process Page", [
   defineField({ name: "intro", type: "text" }),
   defineField({ name: "sections", type: "array", of: [defineArrayMember({ type: "object", fields: [defineField({ name: "title", type: "string" }), defineField({ name: "body", type: "text" })] })] }),
   defineField({ name: "capacityCallout", type: "text" }),
+  defineField({ name: "phaseTwoNote", type: "text" }),
 ]);
 
 const contactPage = pageType("contactPage", "Contact Page", [
@@ -134,5 +139,4 @@ export const schemaTypes = [
   partnersPage,
   siteSettings,
   formSubmission,
-  richText,
 ];
