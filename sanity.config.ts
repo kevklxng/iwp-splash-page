@@ -4,6 +4,9 @@ import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./sanity/schemaTypes";
 import { deskStructure } from "./sanity/deskStructure";
 
+const FALLBACK_PROJECT_ID = "zh4olrxs";
+const FALLBACK_DATASET = "production";
+
 function normalizeEnv(value: string | undefined, fallback: string) {
   const raw = (value ?? "").trim();
   if (!raw) return fallback;
@@ -17,8 +20,16 @@ function normalizeEnv(value: string | undefined, fallback: string) {
 export default defineConfig({
   name: "default",
   title: "Templeton Custom Homes",
-  projectId: normalizeEnv(process.env.NEXT_PUBLIC_SANITY_PROJECT_ID, "placeholder"),
-  dataset: normalizeEnv(process.env.NEXT_PUBLIC_SANITY_DATASET, "production"),
+  // Studio deploys do not automatically read Next.js `.env.local`,
+  // so keep a real fallback to avoid deploying with "placeholder".
+  projectId: normalizeEnv(
+    process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    FALLBACK_PROJECT_ID,
+  ),
+  dataset: normalizeEnv(
+    process.env.SANITY_STUDIO_DATASET ?? process.env.NEXT_PUBLIC_SANITY_DATASET,
+    FALLBACK_DATASET,
+  ),
   basePath: "/studio",
   plugins: [structureTool({ structure: deskStructure }), visionTool()],
   schema: {
