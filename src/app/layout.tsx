@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {gaId ? (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
-            <Script id="ga4" strategy="afterInteractive">
+            <Script id="ga4" strategy="lazyOnload">
               {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
@@ -36,7 +37,17 @@ gtag('config', '${gaId}');`}
         ) : null}
         <SiteHeader />
         <main>{children}</main>
-        <SiteFooter />
+        <Suspense
+          fallback={
+            <footer className="border-t border-coastal-line bg-coastal-alt">
+              <div className="mx-auto w-full max-w-7xl px-6 py-12 text-sm text-coastal-muted lg:px-8">
+                Templeton Custom Homes
+              </div>
+            </footer>
+          }
+        >
+          <SiteFooter />
+        </Suspense>
       </body>
     </html>
   );

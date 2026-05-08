@@ -3,12 +3,14 @@ import Link from "next/link";
 import { PortableText } from "@/components/portable-text";
 import { getFeaturedProjects, getHomePage } from "@/lib/cms";
 
+export const revalidate = 300;
+
 export default async function HomePage() {
   const [home, featured] = await Promise.all([getHomePage(), getFeaturedProjects()]);
   const heroSrc =
     home.heroImageUrl ||
     featured[0]?.heroImage ||
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80";
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=75";
 
   return (
     <div>

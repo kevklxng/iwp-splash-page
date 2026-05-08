@@ -3,6 +3,7 @@ import type { PortableTextBlock } from "@portabletext/types";
 import { cache } from "react";
 import { sanityClient } from "../sanity/client";
 import { hasSanity } from "../sanity/env";
+import { urlFor } from "../sanity/image";
 import { placeholderPartners, placeholderProjects, type Partner, type Project } from "./content";
 
 /** Cities used for Contact JSON-LD and fallbacks (editable copy lives in CMS for visible text). */
@@ -139,6 +140,8 @@ const FALLBACK_SITE_SETTINGS = {
     "We focus primarily on Newport Beach, Costa Mesa, and Corona del Mar, with extended service in Laguna Beach, Dana Point, San Clemente, Huntington Beach, Anaheim, and Irvine.",
 };
 
+const DEFAULT_REVALIDATE_SECONDS = 300;
+
 export type HomePageContent = {
   heroHeadline: string;
   heroSubhead: string;
@@ -191,8 +194,8 @@ const homeQuery = groq`*[_id == "home-page"][0]{
   closingCtaHeading,
   closingCtaCopy,
   closingCtaButtonLabel,
-  "heroImageUrl": heroImage.asset->url,
-  "aboutPreviewPhotoUrl": aboutPreviewPhoto.asset->url
+  heroImage{asset, crop, hotspot},
+  aboutPreviewPhoto{asset, crop, hotspot}
 }`;
 
 const aboutQuery = groq`*[_id == "about-page"][0]{
@@ -227,10 +230,11 @@ const projectsQuery = groq`*[_type == "project"] | order(order asc, year desc){
   style,
   featured,
   isPlaceholder,
-  description,
-  details,
-  "heroImage": heroImage.asset->url,
-  "gallery": gallery[].asset->url
+  heroImage{asset, crop, hotspot}
+}`;
+
+const projectSlugsQuery = groq`*[_type == "project" && defined(slug.current)] | order(order asc, year desc){
+  "slug": slug.current
 }`;
 
 const projectBySlugQuery = groq`*[_type == "project" && slug.current == $slug][0]{
@@ -245,8 +249,8 @@ const projectBySlugQuery = groq`*[_type == "project" && slug.current == $slug][0
   isPlaceholder,
   description,
   details,
-  "heroImage": heroImage.asset->url,
-  "gallery": gallery[].asset->url
+  heroImage{asset, crop, hotspot},
+  gallery[]{asset, crop, hotspot}
 }`;
 
 const partnersQuery = groq`*[_type == "partner"] | order(order asc){
@@ -263,19 +267,38 @@ const featuredProjectsQuery = groq`*[_type == "project" && featured == true] | o
   style,
   featured,
   isPlaceholder,
-  description,
-  details,
-  "heroImage": heroImage.asset->url,
-  "gallery": gallery[].asset->url
+  heroImage{asset, crop, hotspot}
 }`;
 
-async function safeSanityFetch<T>(query: string, params?: Record<string, unknown>): Promise<T | null> {
+type SanityFetchOptions = {
+  revalidate?: number | false;
+  tags?: string[];
+};
+
+async function safeSanityFetch<T>(
+  query: string,
+  params?: Record<string, unknown>,
+  options?: SanityFetchOptions,
+): Promise<T | null> {
   try {
-    return await sanityClient.fetch<T>(query, params);
+    return await sanityClient.fetch<T>(query, params ?? {}, {
+      next: {
+        revalidate: options?.revalidate ?? DEFAULT_REVALIDATE_SECONDS,
+        tags: options?.tags,
+      },
+    });
   } catch (error) {
     console.error("Sanity query failed; using fallback content.", error);
     return null;
   }
+}
+
+type SanityImageSource = Parameters<typeof urlFor>[0];
+
+function buildSanityImageUrl(source: string | SanityImageSource | null | undefined, width: number): string | null {
+  if (!source) return null;
+  if (typeof source === "string") return source;
+  return urlFor(source)?.width(width).auto("format").quality(75).url() ?? null;
 }
 
 function mapSanityProject(row: {
@@ -290,11 +313,15 @@ function mapSanityProject(row: {
   isPlaceholder?: boolean;
   description?: PortableTextBlock[] | null;
   details?: { label?: string; value?: string }[] | null;
-  heroImage?: string | null;
-  gallery?: (string | null)[] | null;
+  heroImage?: string | SanityImageSource | null;
+  gallery?: (string | SanityImageSource | null)[] | null;
 }): Project {
   const plain = blocksToPlainText(row.description ?? undefined);
-  const gallery = row.gallery?.filter((u): u is string => Boolean(u)) ?? [];
+  const gallery =
+    row.gallery
+      ?.map((image) => buildSanityImageUrl(image, 1200))
+      .filter((u): u is string => Boolean(u)) ?? [];
+  const heroImage = buildSanityImageUrl(row.heroImage, 1600) ?? "";
   return {
     _id: row._id,
     title: row.title,
@@ -303,7 +330,7 @@ function mapSanityProject(row: {
     year: row.year,
     type: row.type,
     style: row.style,
-    heroImage: row.heroImage ?? "",
+    heroImage,
     description: plain || "[No description yet.]",
     descriptionBlocks: row.description?.length ? row.description : undefined,
     featured: row.featured,
@@ -322,7 +349,7 @@ export const getHomePage = cache(async (): Promise<HomePageContent> => {
       aboutPreviewPlain: FALLBACK_HOME.aboutPreviewPlain,
     };
   }
-  const doc = await safeSanityFetch<Record<string, unknown>>(homeQuery);
+  const doc = await safeSanityFetch<Record<string, unknown>>(homeQuery, undefined, { tags: ["home-page"] });
   if (!doc) {
     return {
       ...FALLBACK_HOME,
@@ -337,7 +364,7 @@ export const getHomePage = cache(async (): Promise<HomePageContent> => {
   return {
     heroHeadline: (doc.heroHeadline as string) || FALLBACK_HOME.heroHeadline,
     heroSubhead: (doc.heroSubhead as string) || FALLBACK_HOME.heroSubhead,
-    heroImageUrl: (doc.heroImageUrl as string) || null,
+    heroImageUrl: buildSanityImageUrl((doc.heroImage as SanityImageSource) ?? null, 1800),
     positioningStatement: (doc.positioningStatement as string) || FALLBACK_HOME.positioningStatement,
     whatWeDoBlocks: whatWeDo?.length ? whatWeDo : null,
     whatWeDoPlain: FALLBACK_HOME.whatWeDoPlain,
@@ -350,7 +377,7 @@ export const getHomePage = cache(async (): Promise<HomePageContent> => {
     aboutPreviewHeading: (doc.aboutPreviewHeading as string) || FALLBACK_HOME.aboutPreviewHeading,
     aboutPreviewBlocks: aboutPreviewText?.length ? aboutPreviewText : null,
     aboutPreviewPlain: FALLBACK_HOME.aboutPreviewPlain,
-    aboutPreviewPhotoUrl: (doc.aboutPreviewPhotoUrl as string) || null,
+    aboutPreviewPhotoUrl: buildSanityImageUrl((doc.aboutPreviewPhoto as SanityImageSource) ?? null, 900),
     aboutLearnMoreLabel: (doc.aboutLearnMoreLabel as string) || FALLBACK_HOME.aboutLearnMoreLabel,
     closingCtaHeading: (doc.closingCtaHeading as string) || FALLBACK_HOME.closingCtaHeading,
     closingCtaCopy: (doc.closingCtaCopy as string) || null,
@@ -372,7 +399,7 @@ export const getAboutPage = cache(async (): Promise<AboutPageContent> => {
     credentials?: PortableTextBlock[];
     teamMembers?: { name?: string; role?: string; photoUrl?: string | null }[];
     joelPhotoUrl?: string | null;
-  }>(aboutQuery);
+  }>(aboutQuery, undefined, { tags: ["about-page"] });
   if (!doc) {
     return {
       joelPhotoUrl: FALLBACK_ABOUT.joelPhotoUrl,
@@ -391,7 +418,7 @@ export const getAboutPage = cache(async (): Promise<AboutPageContent> => {
 
 export const getProcessPage = cache(async (): Promise<ProcessPageContent> => {
   if (!hasSanity) return FALLBACK_PROCESS;
-  const doc = await safeSanityFetch<Partial<ProcessPageContent>>(processQuery);
+  const doc = await safeSanityFetch<Partial<ProcessPageContent>>(processQuery, undefined, { tags: ["process-page"] });
   if (!doc) return FALLBACK_PROCESS;
   return {
     intro: doc.intro?.trim() || FALLBACK_PROCESS.intro,
@@ -403,7 +430,7 @@ export const getProcessPage = cache(async (): Promise<ProcessPageContent> => {
 
 export const getContactPage = cache(async (): Promise<ContactPageContent> => {
   if (!hasSanity) return FALLBACK_CONTACT;
-  const doc = await safeSanityFetch<Partial<ContactPageContent>>(contactQuery);
+  const doc = await safeSanityFetch<Partial<ContactPageContent>>(contactQuery, undefined, { tags: ["contact-page"] });
   if (!doc) return FALLBACK_CONTACT;
   return {
     intro: doc.intro?.trim() || FALLBACK_CONTACT.intro,
@@ -417,21 +444,23 @@ export const getContactPage = cache(async (): Promise<ContactPageContent> => {
 
 export const getWorkPage = cache(async (): Promise<WorkPageContent> => {
   if (!hasSanity) return FALLBACK_WORK;
-  const doc = await safeSanityFetch<{ intro?: string }>(workQuery);
+  const doc = await safeSanityFetch<{ intro?: string }>(workQuery, undefined, { tags: ["work-page"] });
   if (!doc) return FALLBACK_WORK;
   return { intro: doc.intro?.trim() || FALLBACK_WORK.intro };
 });
 
 export const getPartnersPage = cache(async (): Promise<PartnersPageContent> => {
   if (!hasSanity) return FALLBACK_PARTNERS;
-  const doc = await safeSanityFetch<{ intro?: string }>(partnersQuerySingleton);
+  const doc = await safeSanityFetch<{ intro?: string }>(partnersQuerySingleton, undefined, { tags: ["partners-page"] });
   if (!doc) return FALLBACK_PARTNERS;
   return { intro: doc.intro?.trim() || FALLBACK_PARTNERS.intro };
 });
 
 export const getSiteSettings = cache(async (): Promise<SiteSettingsContent> => {
   if (!hasSanity) return FALLBACK_SITE_SETTINGS;
-  const doc = await safeSanityFetch<Partial<SiteSettingsContent>>(siteSettingsQuery);
+  const doc = await safeSanityFetch<Partial<SiteSettingsContent>>(siteSettingsQuery, undefined, {
+    tags: ["site-settings"],
+  });
   if (!doc) return FALLBACK_SITE_SETTINGS;
   return {
     footerTagline: doc.footerTagline || FALLBACK_SITE_SETTINGS.footerTagline,
@@ -442,20 +471,28 @@ export const getSiteSettings = cache(async (): Promise<SiteSettingsContent> => {
 
 export const getProjects = cache(async (): Promise<Project[]> => {
   if (!hasSanity) return placeholderProjects;
-  const rows = await safeSanityFetch<Parameters<typeof mapSanityProject>[0][]>(projectsQuery);
+  const rows = await safeSanityFetch<Parameters<typeof mapSanityProject>[0][]>(projectsQuery, undefined, {
+    tags: ["project"],
+  });
   return rows?.length ? rows.map(mapSanityProject) : placeholderProjects;
 });
 
 export const getFeaturedProjects = cache(async (): Promise<Project[]> => {
   const fallback = placeholderProjects.filter((p) => p.featured).slice(0, 3);
   if (!hasSanity) return fallback;
-  const rows = await safeSanityFetch<Parameters<typeof mapSanityProject>[0][]>(featuredProjectsQuery);
+  const rows = await safeSanityFetch<Parameters<typeof mapSanityProject>[0][]>(featuredProjectsQuery, undefined, {
+    tags: ["project", "home-page"],
+  });
   return rows?.length ? rows.map(mapSanityProject) : fallback;
 });
 
 export const getProjectBySlug = cache(async (slug: string): Promise<Project | undefined> => {
   if (!hasSanity) return placeholderProjects.find((p) => p.slug === slug);
-  const row = await safeSanityFetch<Parameters<typeof mapSanityProject>[0]>(projectBySlugQuery, { slug });
+  const row = await safeSanityFetch<Parameters<typeof mapSanityProject>[0]>(
+    projectBySlugQuery,
+    { slug },
+    { tags: ["project", `project:${slug}`] },
+  );
   if (!row) {
     const fallback = placeholderProjects.find((p) => p.slug === slug);
     return fallback;
@@ -465,6 +502,15 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | un
 
 export const getPartners = cache(async (): Promise<Partner[]> => {
   if (!hasSanity) return placeholderPartners;
-  const rows = await safeSanityFetch<Partner[]>(partnersQuery);
+  const rows = await safeSanityFetch<Partner[]>(partnersQuery, undefined, { tags: ["partner", "partners-page"] });
   return rows?.length ? rows : placeholderPartners;
+});
+
+export const getProjectSlugs = cache(async (): Promise<string[]> => {
+  if (!hasSanity) return placeholderProjects.map((project) => project.slug);
+  const rows = await safeSanityFetch<{ slug?: string }[]>(projectSlugsQuery, undefined, {
+    tags: ["project"],
+    revalidate: 3600,
+  });
+  return rows?.map((row) => row.slug).filter((slug): slug is string => Boolean(slug)) ?? [];
 });
