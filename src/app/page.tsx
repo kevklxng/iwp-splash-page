@@ -17,9 +17,18 @@ export default async function HomePage() {
           <p className="text-xs uppercase tracking-[0.18em] text-coastal-muted">Templeton Custom Homes</p>
           <h1 className="mt-4 text-5xl leading-tight lg:text-7xl">{home.heroHeadline}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-coastal-muted">{home.heroSubhead}</p>
-          <Link href="/work" className="mt-8 inline-block underline decoration-coastal-accent underline-offset-4">
-            See our work
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
+            <Link href="/work" className="inline-block underline decoration-coastal-accent underline-offset-4">
+              See our work
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded px-5 py-2 text-white"
+              style={{ backgroundColor: "var(--color-accent)" }}
+            >
+              Start Project
+            </Link>
+          </div>
         </div>
         <Image
           src={heroSrc}
