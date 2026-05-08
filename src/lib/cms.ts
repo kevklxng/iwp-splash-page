@@ -269,6 +269,15 @@ const featuredProjectsQuery = groq`*[_type == "project" && featured == true] | o
   "gallery": gallery[].asset->url
 }`;
 
+async function safeSanityFetch<T>(query: string, params?: Record<string, unknown>): Promise<T | null> {
+  try {
+    return await sanityClient.fetch<T>(query, params);
+  } catch (error) {
+    console.error("Sanity query failed; using fallback content.", error);
+    return null;
+  }
+}
+
 function mapSanityProject(row: {
   _id: string;
   title: string;
@@ -313,7 +322,7 @@ export const getHomePage = cache(async (): Promise<HomePageContent> => {
       aboutPreviewPlain: FALLBACK_HOME.aboutPreviewPlain,
     };
   }
-  const doc = await sanityClient.fetch<Record<string, unknown> | null>(homeQuery);
+  const doc = await safeSanityFetch<Record<string, unknown>>(homeQuery);
   if (!doc) {
     return {
       ...FALLBACK_HOME,
@@ -358,12 +367,12 @@ export const getAboutPage = cache(async (): Promise<AboutPageContent> => {
       credentials: FALLBACK_ABOUT.credentials,
     };
   }
-  const doc = await sanityClient.fetch<{
+  const doc = await safeSanityFetch<{
     bio?: PortableTextBlock[];
     credentials?: PortableTextBlock[];
     teamMembers?: { name?: string; role?: string; photoUrl?: string | null }[];
     joelPhotoUrl?: string | null;
-  } | null>(aboutQuery);
+  }>(aboutQuery);
   if (!doc) {
     return {
       joelPhotoUrl: FALLBACK_ABOUT.joelPhotoUrl,
@@ -382,7 +391,7 @@ export const getAboutPage = cache(async (): Promise<AboutPageContent> => {
 
 export const getProcessPage = cache(async (): Promise<ProcessPageContent> => {
   if (!hasSanity) return FALLBACK_PROCESS;
-  const doc = await sanityClient.fetch<Partial<ProcessPageContent> | null>(processQuery);
+  const doc = await safeSanityFetch<Partial<ProcessPageContent>>(processQuery);
   if (!doc) return FALLBACK_PROCESS;
   return {
     intro: doc.intro?.trim() || FALLBACK_PROCESS.intro,
@@ -394,7 +403,7 @@ export const getProcessPage = cache(async (): Promise<ProcessPageContent> => {
 
 export const getContactPage = cache(async (): Promise<ContactPageContent> => {
   if (!hasSanity) return FALLBACK_CONTACT;
-  const doc = await sanityClient.fetch<Partial<ContactPageContent> | null>(contactQuery);
+  const doc = await safeSanityFetch<Partial<ContactPageContent>>(contactQuery);
   if (!doc) return FALLBACK_CONTACT;
   return {
     intro: doc.intro?.trim() || FALLBACK_CONTACT.intro,
@@ -408,21 +417,21 @@ export const getContactPage = cache(async (): Promise<ContactPageContent> => {
 
 export const getWorkPage = cache(async (): Promise<WorkPageContent> => {
   if (!hasSanity) return FALLBACK_WORK;
-  const doc = await sanityClient.fetch<{ intro?: string } | null>(workQuery);
+  const doc = await safeSanityFetch<{ intro?: string }>(workQuery);
   if (!doc) return FALLBACK_WORK;
   return { intro: doc.intro?.trim() || FALLBACK_WORK.intro };
 });
 
 export const getPartnersPage = cache(async (): Promise<PartnersPageContent> => {
   if (!hasSanity) return FALLBACK_PARTNERS;
-  const doc = await sanityClient.fetch<{ intro?: string } | null>(partnersQuerySingleton);
+  const doc = await safeSanityFetch<{ intro?: string }>(partnersQuerySingleton);
   if (!doc) return FALLBACK_PARTNERS;
   return { intro: doc.intro?.trim() || FALLBACK_PARTNERS.intro };
 });
 
 export const getSiteSettings = cache(async (): Promise<SiteSettingsContent> => {
   if (!hasSanity) return FALLBACK_SITE_SETTINGS;
-  const doc = await sanityClient.fetch<Partial<SiteSettingsContent> | null>(siteSettingsQuery);
+  const doc = await safeSanityFetch<Partial<SiteSettingsContent>>(siteSettingsQuery);
   if (!doc) return FALLBACK_SITE_SETTINGS;
   return {
     footerTagline: doc.footerTagline || FALLBACK_SITE_SETTINGS.footerTagline,
@@ -433,20 +442,20 @@ export const getSiteSettings = cache(async (): Promise<SiteSettingsContent> => {
 
 export const getProjects = cache(async (): Promise<Project[]> => {
   if (!hasSanity) return placeholderProjects;
-  const rows = await sanityClient.fetch<Parameters<typeof mapSanityProject>[0][]>(projectsQuery);
+  const rows = await safeSanityFetch<Parameters<typeof mapSanityProject>[0][]>(projectsQuery);
   return rows?.length ? rows.map(mapSanityProject) : placeholderProjects;
 });
 
 export const getFeaturedProjects = cache(async (): Promise<Project[]> => {
   const fallback = placeholderProjects.filter((p) => p.featured).slice(0, 3);
   if (!hasSanity) return fallback;
-  const rows = await sanityClient.fetch<Parameters<typeof mapSanityProject>[0][]>(featuredProjectsQuery);
+  const rows = await safeSanityFetch<Parameters<typeof mapSanityProject>[0][]>(featuredProjectsQuery);
   return rows?.length ? rows.map(mapSanityProject) : fallback;
 });
 
 export const getProjectBySlug = cache(async (slug: string): Promise<Project | undefined> => {
   if (!hasSanity) return placeholderProjects.find((p) => p.slug === slug);
-  const row = await sanityClient.fetch<Parameters<typeof mapSanityProject>[0] | null>(projectBySlugQuery, { slug });
+  const row = await safeSanityFetch<Parameters<typeof mapSanityProject>[0]>(projectBySlugQuery, { slug });
   if (!row) {
     const fallback = placeholderProjects.find((p) => p.slug === slug);
     return fallback;
@@ -456,6 +465,6 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | un
 
 export const getPartners = cache(async (): Promise<Partner[]> => {
   if (!hasSanity) return placeholderPartners;
-  const rows = await sanityClient.fetch<Partner[]>(partnersQuery);
+  const rows = await safeSanityFetch<Partner[]>(partnersQuery);
   return rows?.length ? rows : placeholderPartners;
 });
