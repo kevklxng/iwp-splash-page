@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProjectBySlug, getProjects } from "@/lib/cms";
+import { PortableText } from "@/components/portable-text";
+import { blocksToPlainText, getProjectBySlug, getProjects } from "@/lib/cms";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -14,9 +15,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
+  const plain =
+    project?.descriptionBlocks?.length ? blocksToPlainText(project.descriptionBlocks) : project?.description ?? "";
   return {
     title: project ? `${project.title} - Templeton Custom Homes` : "Project - Templeton Custom Homes",
-    description: project?.description.slice(0, 155),
+    description: plain ? plain.slice(0, 155) : undefined,
   };
 }
 
@@ -27,6 +30,9 @@ export default async function ProjectDetailPage({ params }: Props) {
   if (!project) return notFound();
   const current = projects.findIndex((p) => p.slug === slug);
   const next = projects[(current + 1) % projects.length];
+
+  const galleryImages =
+    project.gallery?.filter(Boolean).length ? project.gallery! : [project.heroImage, project.heroImage].slice(0, 2);
 
   return (
     <article>
@@ -45,28 +51,42 @@ export default async function ProjectDetailPage({ params }: Props) {
           {project.location} - {project.year} - {project.type}
           {project.style ? ` - ${project.style}` : ""}
         </p>
-        <p className="mt-8 text-lg leading-relaxed text-coastal-muted">{project.description}</p>
+        <div className="mt-8 text-lg leading-relaxed text-coastal-muted">
+          {project.descriptionBlocks?.length ? (
+            <PortableText value={project.descriptionBlocks} />
+          ) : (
+            <p>{project.description}</p>
+          )}
+        </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <Image
-            src={project.heroImage}
-            alt={`${project.title} gallery placeholder image one`}
-            width={1000}
-            height={700}
-            sizes="(min-width: 640px) 50vw, 100vw"
-            className="rounded object-cover"
-          />
-          <Image
-            src={project.heroImage}
-            alt={`${project.title} gallery placeholder image two`}
-            width={1000}
-            height={700}
-            sizes="(min-width: 640px) 50vw, 100vw"
-            className="rounded object-cover"
-          />
+          {galleryImages.map((src, i) => (
+            <Image
+              key={`${src}-${i}`}
+              src={src}
+              alt={`${project.title} gallery image ${i + 1}`}
+              width={1000}
+              height={700}
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="rounded object-cover"
+            />
+          ))}
         </div>
-        <div className="mt-10 border border-coastal-line p-5 text-sm text-coastal-muted">
-          [PLACEHOLDER: Optional details panel - square footage, bedrooms, baths, completion timeline, partner credits.]
-        </div>
+        {project.details?.length ? (
+          <div className="mt-10 border border-coastal-line p-5 text-sm text-coastal-muted">
+            <dl className="grid gap-3 sm:grid-cols-2">
+              {project.details.map((d) => (
+                <div key={d.label}>
+                  <dt className="font-medium text-coastal-ink">{d.label}</dt>
+                  <dd>{d.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ) : (
+          <div className="mt-10 border border-coastal-line p-5 text-sm text-coastal-muted">
+            [Optional project details can be added in Sanity: square footage, bedrooms, baths, timeline, credits.]
+          </div>
+        )}
         <Link href={`/work/${next.slug}`} className="mt-10 inline-block underline">
           Next project
         </Link>

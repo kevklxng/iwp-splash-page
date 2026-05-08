@@ -1,31 +1,30 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact-form";
+import { PortableText } from "@/components/portable-text";
+import { blocksToPlainText, CONTACT_AREA_SERVED, getContactPage } from "@/lib/cms";
 
 export const metadata: Metadata = {
   title: "Start a Project - Templeton Custom Homes",
   description: "Tell us about your project. Joel reads every inquiry and responds within one business day.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const contact = await getContactPage();
+
+  const licensePlain = blocksToPlainText(contact.licenseBonding ?? undefined);
+  const servicePlain = blocksToPlainText(contact.serviceArea ?? undefined);
+
   const localBusiness = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: "Templeton Custom Homes",
-    email: "joel@templetoncustomhomes.com",
-    telephone: "(949) 933-2459",
-    areaServed: [
-      "Newport Beach",
-      "Costa Mesa",
-      "Corona del Mar",
-      "Laguna Beach",
-      "Dana Point",
-      "San Clemente",
-      "Huntington Beach",
-      "Anaheim",
-      "Irvine",
-    ],
+    email: contact.contactEmail,
+    telephone: contact.phone,
+    areaServed: [...CONTACT_AREA_SERVED],
     priceRange: "$$$$",
-    description: "Custom home builder serving coastal Orange County with transparent bidding and billing.",
+    description:
+      [licensePlain, servicePlain].filter(Boolean).join(" ").slice(0, 280) ||
+      "Custom home builder serving coastal Orange County with transparent bidding and billing.",
   };
 
   return (
@@ -33,23 +32,32 @@ export default function ContactPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusiness) }} />
       <section>
         <h1 className="text-4xl lg:text-5xl">Start a Project</h1>
-        <p className="mt-5 text-lg text-coastal-muted">
-          Tell us about your project. Joel reads every inquiry and responds within one business day.
-        </p>
+        <p className="mt-5 text-lg text-coastal-muted">{contact.intro}</p>
         <div className="mt-8">
           <ContactForm />
         </div>
       </section>
       <aside className="h-fit border border-coastal-line bg-coastal-alt p-6 text-coastal-muted">
         <p className="text-xl text-coastal-ink">Templeton Custom Homes</p>
-        <p className="mt-4">Email: joel@templetoncustomhomes.com</p>
-        <p>Phone: (949) 933-2459</p>
-        <p className="mt-4">[PLACEHOLDER: License and bonding information pending confirmation.]</p>
         <p className="mt-4">
-          We focus primarily on Newport Beach, Costa Mesa, and Corona del Mar, with extended service in Laguna Beach,
-          Dana Point, San Clemente, Huntington Beach, Anaheim, and Irvine.
+          Email:{" "}
+          <a href={`mailto:${contact.contactEmail}`} className="underline">
+            {contact.contactEmail}
+          </a>
         </p>
-        <p className="mt-4 font-semibold text-coastal-ink">Minimum project size: $500,000.</p>
+        <p>
+          Phone:{" "}
+          <a href={`tel:${contact.phone.replace(/\D/g, "")}`} className="underline">
+            {contact.phone}
+          </a>
+        </p>
+        <div className="mt-4">
+          <PortableText value={contact.licenseBonding ?? undefined} />
+        </div>
+        <div className="mt-4">
+          <PortableText value={contact.serviceArea ?? undefined} />
+        </div>
+        <p className="mt-4 font-semibold text-coastal-ink">{contact.minimumProjectSizeNote}</p>
       </aside>
     </div>
   );
