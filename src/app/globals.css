@@ -30,6 +30,52 @@ a {
   text-decoration-color: var(--color-accent);
 }
 
+/* Next/Image injects color: transparent on <img>; keep surface aligned with --color-bg (splash logo). */
+img.splash-logo-img {
+  background-color: var(--color-bg);
+  color: rgba(250, 250, 247, 0) !important;
+}
+
+@keyframes tchShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tchPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.tch-loading-shell {
+  border: 1px solid var(--color-line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(241, 238, 232, 0.72) 100%);
+  box-shadow: 0 20px 60px rgba(31, 42, 46, 0.08);
+}
+
+.tch-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(46, 69, 73, 0.12);
+  animation: tchPulse 2.2s ease-in-out infinite;
+}
+
+.tch-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.62) 50%, transparent 100%);
+  animation: tchShimmer 1.8s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -38,5 +84,10 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .tch-skeleton,
+  .tch-skeleton::after {
+    animation: none !important;
   }
 }
