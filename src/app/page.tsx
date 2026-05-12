@@ -1,11 +1,33 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@/components/portable-text";
+import { SplashHome } from "@/components/splash-home";
 import { getFeaturedProjects, getHomePage } from "@/lib/cms";
+import { isSplashMode } from "@/lib/splash";
 
 export const revalidate = 300;
 
+export async function generateMetadata(): Promise<Metadata> {
+  if (isSplashMode) {
+    return {
+      title: "Templeton Custom Homes — Coming soon",
+      description:
+        "Templeton Custom Homes is launching a new website. Follow us on Facebook or start a project — we serve coastal Orange County with transparent building and direct owner access.",
+    };
+  }
+  return {
+    title: "Templeton Custom Homes - Newport Beach Custom Builder",
+    description:
+      "High-end coastal homes and remodels in Newport Beach, Costa Mesa, and Corona del Mar with itemized bids and direct owner access.",
+  };
+}
+
 export default async function HomePage() {
+  if (isSplashMode) {
+    return <SplashHome />;
+  }
+
   const [home, featured] = await Promise.all([getHomePage(), getFeaturedProjects()]);
   const heroSrc =
     home.heroImageUrl ||

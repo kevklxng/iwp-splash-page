@@ -5,10 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactSchema } from "@/lib/contact-schema";
 
-const projectTypes = ["New Custom Build", "Remodel", "Addition", "ADU", "Not sure yet"] as const;
+const projectTypes = ["Full Custom Build", "Remodel / Addition to Home", "Investment Property", "ADU"] as const;
 const budgetRanges = ["$500K-$1M", "$1M-$3M", "$3M-$7M", "$7M-$15M", "$15M+"] as const;
-const timelines = ["Ready to start in 1-3 months", "3-6 months", "6-12 months", "Just exploring"] as const;
-const drawingStatuses = ["Submitted to city", "In progress with architect", "Haven't started", "Not sure"] as const;
+const timelines = ["ASAP", "1–3 months", "3–6 months", "6–12 months", "12+ months"] as const;
+const drawingStatuses = ["Just exploring ideas", "Planning or early design", "Plans in progress", "Plans complete / Permits pending", "Permits approved / Ready to Build"] as const;
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -23,10 +23,11 @@ export function ContactForm() {
 
   async function onSubmit(values: ContactSchema) {
     setStatus("submitting");
+    const sourcePage = typeof window !== "undefined" ? window.location.pathname : "/";
     const response = await fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ ...values, sourcePage }),
     });
     if (!response.ok) {
       setStatus("error");
@@ -54,8 +55,8 @@ export function ContactForm() {
       </Field>
       <SelectField label="Project type" error={errors.projectType?.message} options={projectTypes} {...register("projectType")} />
       <SelectField label="Budget range" error={errors.budgetRange?.message} options={budgetRanges} {...register("budgetRange")} />
-      <SelectField label="Timeline" error={errors.timeline?.message} options={timelines} {...register("timeline")} />
-      <SelectField label="Drawings status" error={errors.drawingsStatus?.message} options={drawingStatuses} {...register("drawingsStatus")} />
+      <SelectField label="When do you want to break ground?" error={errors.timeline?.message} options={timelines} {...register("timeline")} />
+      <SelectField label="Where are you in the process right now?" error={errors.drawingsStatus?.message} options={drawingStatuses} {...register("drawingsStatus")} />
       <Field label="Project location" error={errors.projectLocation?.message}>
         <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("projectLocation")} aria-invalid={!!errors.projectLocation} />
       </Field>

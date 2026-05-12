@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { SplashSiteFooter, SplashSiteHeader } from "@/components/splash-chrome";
+import { isSplashMode } from "@/lib/splash";
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
@@ -35,19 +37,23 @@ gtag('config', '${gaId}');`}
             </Script>
           </>
         ) : null}
-        <SiteHeader />
+        {isSplashMode ? <SplashSiteHeader /> : <SiteHeader />}
         <main>{children}</main>
-        <Suspense
-          fallback={
-            <footer className="border-t border-coastal-line bg-coastal-alt">
-              <div className="mx-auto w-full max-w-7xl px-6 py-12 text-sm text-coastal-muted lg:px-8">
-                Templeton Custom Homes
-              </div>
-            </footer>
-          }
-        >
-          <SiteFooter />
-        </Suspense>
+        {isSplashMode ? (
+          <SplashSiteFooter />
+        ) : (
+          <Suspense
+            fallback={
+              <footer className="border-t border-coastal-line bg-coastal-alt">
+                <div className="mx-auto w-full max-w-7xl px-6 py-12 text-sm text-coastal-muted lg:px-8">
+                  Templeton Custom Homes
+                </div>
+              </footer>
+            }
+          >
+            <SiteFooter />
+          </Suspense>
+        )}
       </body>
     </html>
   );
