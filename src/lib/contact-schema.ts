@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+/** Standard spellings for Orange County coastal areas */
+export const PROJECT_LOCATIONS = [
+  "Newport Beach",
+  "Newport Coast",
+  "Corona del Mar",
+  "Costa Mesa",
+  "Laguna Beach",
+  "San Clemente",
+  "Other",
+] as const;
+
 export const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
@@ -8,7 +19,10 @@ export const contactSchema = z.object({
   budgetRange: z.enum(["$500K-$1M", "$1M-$3M", "$3M-$7M", "$7M-$15M", "$15M+"]),
   timeline: z.enum(["ASAP", "1–3 months", "3–6 months", "6–12 months", "12+ months"]),
   drawingsStatus: z.enum(["Just exploring ideas", "Planning or early design", "Plans in progress", "Plans complete / Permits pending", "Permits approved / Ready to Build"]),
-  projectLocation: z.string().min(1, "Project location is required"),
+  projectLocation: z.enum(PROJECT_LOCATIONS, {
+    required_error: "Please select a project location.",
+    invalid_type_error: "Please select a project location.",
+  }),
   message: z.string().optional(),
   company: z.string().optional(),
   sourcePage: z.string().max(500).optional(),

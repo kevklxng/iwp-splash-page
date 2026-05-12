@@ -1,14 +1,8 @@
 import Image from "next/image";
 
-const SRC = "/templeton-logo.png";
-const WIDTH = 1024;
-const HEIGHT = 282;
-
-/** Passed to style; CSS class splash-logo-img also enforces color (Next/Image may override inline). */
-const logoSurfaceStyle = {
-  backgroundColor: "var(--color-bg)",
-  color: "rgba(250, 250, 247, 0)",
-} as const;
+const SRC = "/SVGtch.svg";
+const WIDTH = 362;
+const HEIGHT = 100;
 
 type SplashLogoProps = {
   variant?: "header" | "hero";
@@ -23,8 +17,7 @@ export function SplashLogo({ variant = "hero", priority = false }: SplashLogoPro
         alt="Templeton Custom Homes"
         width={WIDTH}
         height={HEIGHT}
-        className="splash-logo-img bg-coastal-bg h-8 w-auto md:h-10"
-        style={logoSurfaceStyle}
+        className="h-8 w-auto md:h-10"
         priority={priority}
       />
     );
@@ -36,8 +29,7 @@ export function SplashLogo({ variant = "hero", priority = false }: SplashLogoPro
       alt="Templeton Custom Homes"
       width={WIDTH}
       height={HEIGHT}
-      className="splash-logo-img bg-coastal-bg h-auto w-full max-w-[min(100%,560px)]"
-      style={logoSurfaceStyle}
+      className="h-auto w-full max-w-[min(100%,560px)]"
       priority={priority}
     />
   );

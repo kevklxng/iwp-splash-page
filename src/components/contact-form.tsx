@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { contactSchema, type ContactSchema } from "@/lib/contact-schema";
+import { contactSchema, PROJECT_LOCATIONS, type ContactSchema } from "@/lib/contact-schema";
 
 const projectTypes = ["Full Custom Build", "Remodel / Addition to Home", "Investment Property", "ADU"] as const;
 const budgetRanges = ["$500K-$1M", "$1M-$3M", "$3M-$7M", "$7M-$15M", "$15M+"] as const;
@@ -57,9 +57,7 @@ export function ContactForm() {
       <SelectField label="Budget range" error={errors.budgetRange?.message} options={budgetRanges} {...register("budgetRange")} />
       <SelectField label="When do you want to break ground?" error={errors.timeline?.message} options={timelines} {...register("timeline")} />
       <SelectField label="Where are you in the process right now?" error={errors.drawingsStatus?.message} options={drawingStatuses} {...register("drawingsStatus")} />
-      <Field label="Project location" error={errors.projectLocation?.message}>
-        <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("projectLocation")} aria-invalid={!!errors.projectLocation} />
-      </Field>
+      <SelectField label="Project location" error={errors.projectLocation?.message} options={PROJECT_LOCATIONS} {...register("projectLocation")} />
       <Field label="Message (optional)" error={errors.message?.message}>
         <textarea className="w-full border border-coastal-line bg-white px-4 py-3" rows={5} {...register("message")} />
       </Field>
