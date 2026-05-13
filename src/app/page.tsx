@@ -1,14 +1,38 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@/components/portable-text";
+import { SplashHome } from "@/components/splash-home";
 import { getFeaturedProjects, getHomePage } from "@/lib/cms";
+import { isSplashMode } from "@/lib/splash";
+
+export const revalidate = 300;
+
+export async function generateMetadata(): Promise<Metadata> {
+  if (isSplashMode) {
+    return {
+      title: "Templeton Custom Homes — Coming soon",
+      description:
+        "Templeton Custom Homes is launching a new website. Follow us on Facebook or start a project — we serve coastal Orange County with transparent building and direct owner access.",
+    };
+  }
+  return {
+    title: "Templeton Custom Homes - Newport Beach Custom Builder",
+    description:
+      "High-end coastal homes and remodels in Newport Beach, Costa Mesa, and Corona del Mar with itemized bids and direct owner access.",
+  };
+}
 
 export default async function HomePage() {
+  if (isSplashMode) {
+    return <SplashHome />;
+  }
+
   const [home, featured] = await Promise.all([getHomePage(), getFeaturedProjects()]);
   const heroSrc =
     home.heroImageUrl ||
     featured[0]?.heroImage ||
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80";
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=75";
 
   return (
     <div>
@@ -17,9 +41,18 @@ export default async function HomePage() {
           <p className="text-xs uppercase tracking-[0.18em] text-coastal-muted">Templeton Custom Homes</p>
           <h1 className="mt-4 text-5xl leading-tight lg:text-7xl">{home.heroHeadline}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-coastal-muted">{home.heroSubhead}</p>
-          <Link href="/work" className="mt-8 inline-block underline decoration-coastal-accent underline-offset-4">
-            See our work
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
+            <Link href="/work" className="inline-block underline decoration-coastal-accent underline-offset-4">
+              See our work
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded px-5 py-2 text-white"
+              style={{ backgroundColor: "var(--color-accent)" }}
+            >
+              Start Project
+            </Link>
+          </div>
         </div>
         <Image
           src={heroSrc}

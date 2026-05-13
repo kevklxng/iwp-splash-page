@@ -2,14 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText } from "@/components/portable-text";
-import { blocksToPlainText, getProjectBySlug, getProjects } from "@/lib/cms";
+import { blocksToPlainText, getProjectBySlug, getProjectSlugs } from "@/lib/cms";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
-  const projects = await getProjects();
-  return projects.map((p) => ({ slug: p.slug }));
+  const slugs = await getProjectSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -25,11 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
-  const projects = await getProjects();
+  const [project, slugs] = await Promise.all([getProjectBySlug(slug), getProjectSlugs()]);
   if (!project) return notFound();
-  const current = projects.findIndex((p) => p.slug === slug);
-  const next = projects[(current + 1) % projects.length];
+  const current = slugs.findIndex((projectSlug) => projectSlug === slug);
+  const next = slugs.length ? slugs[(current + 1) % slugs.length] ?? slug : slug;
 
   const galleryImages =
     project.gallery?.filter(Boolean).length ? project.gallery! : [project.heroImage, project.heroImage].slice(0, 2);
@@ -87,7 +88,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             [Optional project details can be added in Sanity: square footage, bedrooms, baths, timeline, credits.]
           </div>
         )}
-        <Link href={`/work/${next.slug}`} className="mt-10 inline-block underline">
+        <Link href={`/work/${next}`} className="mt-10 inline-block underline">
           Next project
         </Link>
       </div>

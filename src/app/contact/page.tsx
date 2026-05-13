@@ -5,7 +5,7 @@ import { blocksToPlainText, CONTACT_AREA_SERVED, getContactPage } from "@/lib/cm
 
 export const metadata: Metadata = {
   title: "Start a Project - Templeton Custom Homes",
-  description: "Tell us about your project. Joel reads every inquiry and responds within one business day.",
+  description: "Let's talk specifics. Joel reads every inquiry and responds within one business day.",
 };
 
 export default async function ContactPage() {
