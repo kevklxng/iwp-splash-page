@@ -113,7 +113,7 @@ const FALLBACK_PROCESS = {
 };
 
 const FALLBACK_CONTACT = {
-  intro: "Tell us about your project. Joel reads every inquiry and responds within one business day.",
+  intro: "Let's talk specifics. Joel reads every inquiry and responds within one business day.",
   contactEmail: "joel@templetoncustomhomes.com",
   phone: "(949) 933-2459",
   licenseBonding: plainParagraphBlocks("[PLACEHOLDER: License and bonding information pending confirmation.]"),

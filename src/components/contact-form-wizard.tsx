@@ -18,7 +18,7 @@ const drawingStatuses = [
 ] as const;
 
 const STEPS = [
-  { id: 1, title: "Tell us about the project", fields: ["projectType", "budgetRange", "timeline"] as const },
+  { id: 1, title: "Let's talk specifics", fields: ["projectType", "budgetRange", "timeline"] as const },
   { id: 2, title: "Where things stand", fields: ["drawingsStatus", "projectLocation"] as const },
   { id: 3, title: "How can we reach you?", fields: ["name", "email", "phone"] as const },
 ] as const;
