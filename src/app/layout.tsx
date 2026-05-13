@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { SplashSiteFooter, SplashSiteHeader } from "@/components/splash-chrome";
+import { SplashSiteHeader } from "@/components/splash-chrome";
 import { isSplashMode } from "@/lib/splash";
 
 const sourceSerif = Source_Serif_4({
@@ -39,9 +39,7 @@ gtag('config', '${gaId}');`}
         ) : null}
         {isSplashMode ? <SplashSiteHeader /> : <SiteHeader />}
         <main>{children}</main>
-        {isSplashMode ? (
-          <SplashSiteFooter />
-        ) : (
+        {isSplashMode ? null : (
           <Suspense
             fallback={
               <footer className="border-t border-coastal-line bg-coastal-alt">

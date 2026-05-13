@@ -10,6 +10,7 @@
   --color-line: #d9d4ca;
   --color-accent: #5e7a7d;
   --color-accent-deep: #2e4549;
+  --color-accent-warm: #1a1a1a;
 }
 
 * {
@@ -83,5 +84,20 @@ a {
   .tch-skeleton,
   .tch-skeleton::after {
     animation: none !important;
+  }
+}
+
+/* Splash hero: fixed bg only on large screens (iOS Safari issues with fixed) */
+.tch-splash-hero-bg {
+  background-image: url("/splash-hero-bg.png");
+  background-size: cover;
+  background-position: 62% center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+}
+
+@media (min-width: 1024px) {
+  .tch-splash-hero-bg {
+    background-attachment: fixed;
   }
 }
