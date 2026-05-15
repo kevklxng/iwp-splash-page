@@ -10,6 +10,10 @@ Next.js App Router marketing site with embedded Sanity Studio and CMS-driven pag
 - Resend for contact email delivery
 - GA4 (optional via env var)
 
+## Contact form (email, Sheets, Sanity)
+
+Submissions go to `POST /api/contact`. Setup, Resend domain checks, Google Apps Script / Sheets troubleshooting, and **Vercel environment variables** are documented in [`docs/forms-verification.md`](docs/forms-verification.md). To verify only the Sheet webhook (uses `.env.local`): `npm run test:sheets`.
+
 ## Getting Started
 
 1. Install dependencies: `npm install`
