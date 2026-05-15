@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { after } from "next/server";
 import { sql } from "@vercel/postgres";
 import { Resend } from "resend";
 import { contactSchema } from "@/lib/contact-schema";
+import { isSheetsConfigured, postRowToSheet } from "@/lib/google-sheets";
 import { hasSanity } from "../../../sanity/env";
 import { sanityClient } from "../../../sanity/client";
 
@@ -34,55 +36,6 @@ function isRateLimited(ip: string): boolean {
   recent.push(now);
   submissionTimestampsByIp.set(ip, recent);
   return false;
-}
-
-async function postToGoogleSheets(row: Record<string, string | undefined>) {
-  const rawUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-  const secret = process.env.GOOGLE_SHEETS_WEBHOOK_SECRET;
-  if (!rawUrl) {
-    return;
-  }
-  if (!secret) {
-    throw new Error("GOOGLE_SHEETS_WEBHOOK_SECRET is required when GOOGLE_SHEETS_WEBHOOK_URL is set.");
-  }
-
-  const url = rawUrl.trim().replace(/\/+$/, "");
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({ secret, row }),
-    redirect: "follow",
-    cache: "no-store",
-  });
-
-  const text = await response.text().catch(() => "");
-
-  if (!response.ok) {
-    const snippet = text.replace(/\s+/g, " ").slice(0, 400);
-    throw new Error(`Google Sheets webhook failed: HTTP ${response.status} ${snippet}`.slice(0, 800));
-  }
-
-  const trimmed = text.trim();
-  if (!trimmed) {
-    return;
-  }
-
-  try {
-    const parsed = JSON.parse(trimmed) as { ok?: boolean; error?: string };
-    if (parsed && typeof parsed === "object" && parsed.ok === false) {
-      const err = typeof parsed.error === "string" ? parsed.error : "unknown";
-      throw new Error(`Google Sheets webhook rejected: ${err}`);
-    }
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return;
-    }
-    throw error;
-  }
 }
 
 export async function POST(request: Request) {
@@ -189,12 +142,6 @@ export async function POST(request: Request) {
   ].join("\n");
 
   const emailAttempted = Boolean(resend && process.env.CONTACT_TO_EMAIL);
-  const sheetsUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-  const sheetsSecret = process.env.GOOGLE_SHEETS_WEBHOOK_SECRET;
-  const sheetsAttempted = Boolean(sheetsUrl && sheetsSecret);
-  if (sheetsUrl && !sheetsSecret) {
-    console.error("[api/contact] GOOGLE_SHEETS_WEBHOOK_URL is set but GOOGLE_SHEETS_WEBHOOK_SECRET is missing.");
-  }
 
   let emailOk = !emailAttempted;
   if (emailAttempted && resend && process.env.CONTACT_TO_EMAIL) {
@@ -211,13 +158,15 @@ export async function POST(request: Request) {
     }
   }
 
-  // Google Sheets webhook retained but disabled — submissions are stored in Vercel Postgres.
-  if (false && sheetsAttempted) {
-    try {
-      await postToGoogleSheets(row);
-    } catch (error) {
-      console.error("[api/contact] Google Sheets webhook failed:", error);
-    }
+  if (isSheetsConfigured()) {
+    after(async () => {
+      try {
+        await postRowToSheet({ ...row, submissionId: String(newId) });
+        await sql`UPDATE contact_submissions SET synced_to_sheet = TRUE WHERE id = ${newId}`;
+      } catch (error) {
+        console.error("[api/contact] Google Sheets sync failed (will retry via cron):", error);
+      }
+    });
   }
 
   const warnings: string[] = [];
