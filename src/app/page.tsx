@@ -19,7 +19,7 @@ import {
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (isSplashMode) {
+  if (isSplashMode()) {
     return pageMetadata({
       title: `${SITE_NAME} — Coming soon`,
       description:
@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  if (isSplashMode) {
+  if (isSplashMode()) {
     return <SplashHome />;
   }
 

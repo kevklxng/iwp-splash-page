@@ -7,6 +7,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SplashSiteHeader } from "@/components/splash-chrome";
 import { isSplashMode } from "@/lib/splash";
+
+/** Read splash flag at request time so Vercel env changes apply without a rebuild. */
+export const dynamic = "force-dynamic";
 import {
   buildOrganizationSchema,
   buildSchemaGraph,
@@ -71,9 +74,9 @@ gtag('config', '${gaId}');`}
             </Script>
           </>
         ) : null}
-        {isSplashMode ? <SplashSiteHeader /> : <SiteHeader />}
+        {isSplashMode() ? <SplashSiteHeader /> : <SiteHeader />}
         <main>{children}</main>
-        {isSplashMode ? null : (
+        {isSplashMode() ? null : (
           <Suspense
             fallback={
               <footer className="border-t border-coastal-line bg-coastal-alt">
