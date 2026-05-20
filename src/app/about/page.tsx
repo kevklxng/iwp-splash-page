@@ -1,18 +1,28 @@
 import Image from "next/image";
-import type { Metadata } from "next";
 import { PortableText } from "@/components/portable-text";
 import { getAboutPage } from "@/lib/cms";
+import { buildBreadcrumbSchema, buildSchemaGraph, JsonLd, pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "About Joel Templeton - Templeton Custom Homes",
-  description: "Meet the owner behind Templeton Custom Homes and learn how projects are run with direct accountability.",
-};
+  description:
+    "Meet the owner behind Templeton Custom Homes and learn how projects are run with direct accountability.",
+  path: "/about",
+});
+
+const aboutSchema = buildSchemaGraph(
+  buildBreadcrumbSchema([
+    { name: "Home", path: "" },
+    { name: "About", path: "/about" },
+  ]),
+);
 
 export default async function AboutPage() {
   const about = await getAboutPage();
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14 lg:px-8 lg:py-20">
+      <JsonLd data={aboutSchema} />
       <h1 className="text-4xl lg:text-5xl">About Joel Templeton</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-6 text-lg leading-relaxed text-coastal-muted">
@@ -49,7 +59,7 @@ export default async function AboutPage() {
         </div>
         <Image
           src={about.joelPhotoUrl}
-          alt="Portrait representing Joel Templeton"
+          alt="Joel Templeton, owner of Templeton Custom Homes"
           width={900}
           height={1200}
           sizes="(min-width: 1024px) 40vw, 100vw"

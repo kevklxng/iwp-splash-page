@@ -4,6 +4,13 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@/components/portable-text";
 import { blocksToPlainText, getProjectBySlug, getProjectSlugs } from "@/lib/cms";
 import type { Metadata } from "next";
+import {
+  buildBreadcrumbSchema,
+  buildCreativeWorkSchema,
+  buildSchemaGraph,
+  JsonLd,
+  pageMetadata,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -19,10 +26,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProjectBySlug(slug);
   const plain =
     project?.descriptionBlocks?.length ? blocksToPlainText(project.descriptionBlocks) : project?.description ?? "";
-  return {
-    title: project ? `${project.title} - Templeton Custom Homes` : "Project - Templeton Custom Homes",
-    description: plain ? plain.slice(0, 155) : undefined,
-  };
+  const title = project ? `${project.title} - Templeton Custom Homes` : "Project - Templeton Custom Homes";
+  const description =
+    plain.slice(0, 155) ||
+    (project
+      ? `${project.title} — custom home project in ${project.location} by Templeton Custom Homes.`
+      : "Custom home project by Templeton Custom Homes.");
+
+  return pageMetadata({
+    title,
+    description,
+    path: `/work/${slug}`,
+    ogImage: project?.heroImage,
+    ogType: "article",
+  });
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
@@ -35,8 +52,29 @@ export default async function ProjectDetailPage({ params }: Props) {
   const galleryImages =
     project.gallery?.filter(Boolean).length ? project.gallery! : [project.heroImage, project.heroImage].slice(0, 2);
 
+  const plainDescription =
+    project.descriptionBlocks?.length ? blocksToPlainText(project.descriptionBlocks) : project.description ?? "";
+
+  const projectSchema = buildSchemaGraph(
+    buildCreativeWorkSchema({
+      title: project.title,
+      slug: project.slug,
+      description: plainDescription || `${project.title} in ${project.location}`,
+      location: project.location,
+      year: project.year,
+      type: project.type,
+      heroImage: project.heroImage,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "" },
+      { name: "Work", path: "/work" },
+      { name: project.title, path: `/work/${project.slug}` },
+    ]),
+  );
+
   return (
     <article>
+      <JsonLd data={projectSchema} />
       <Image
         src={project.heroImage}
         alt={`${project.title} hero image`}

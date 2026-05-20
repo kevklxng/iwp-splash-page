@@ -1,10 +1,9 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
-const isSplashMode = process.env.NEXT_PUBLIC_SPLASH_MODE === "true";
+import { isSplashMode } from "@/lib/splash";
 
 export function middleware(request: NextRequest) {
-  if (!isSplashMode) {
+  if (!isSplashMode()) {
     return NextResponse.next();
   }
 

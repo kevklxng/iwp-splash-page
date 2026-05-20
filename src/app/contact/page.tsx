@@ -1,12 +1,19 @@
-import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact-form";
 import { PortableText } from "@/components/portable-text";
 import { blocksToPlainText, CONTACT_AREA_SERVED, getContactPage } from "@/lib/cms";
+import {
+  buildBreadcrumbSchema,
+  buildLocalBusinessSchema,
+  buildSchemaGraph,
+  JsonLd,
+  pageMetadata,
+} from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Start a Project - Templeton Custom Homes",
   description: "Let's talk specifics. Joel reads every inquiry and responds within one business day.",
-};
+  path: "/contact",
+});
 
 export default async function ContactPage() {
   const contact = await getContactPage();
@@ -14,22 +21,27 @@ export default async function ContactPage() {
   const licensePlain = blocksToPlainText(contact.licenseBonding ?? undefined);
   const servicePlain = blocksToPlainText(contact.serviceArea ?? undefined);
 
-  const localBusiness = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: "Templeton Custom Homes",
+  const description =
+    [licensePlain, servicePlain].filter(Boolean).join(" ").slice(0, 280) ||
+    "Custom home builder serving coastal Orange County with transparent bidding and billing.";
+
+  const localBusiness = buildLocalBusinessSchema({
+    description,
     email: contact.contactEmail,
     telephone: contact.phone,
-    areaServed: [...CONTACT_AREA_SERVED],
-    priceRange: "$$$$",
-    description:
-      [licensePlain, servicePlain].filter(Boolean).join(" ").slice(0, 280) ||
-      "Custom home builder serving coastal Orange County with transparent bidding and billing.",
-  };
+  });
+
+  const contactSchema = buildSchemaGraph(
+    { ...localBusiness, areaServed: [...CONTACT_AREA_SERVED] },
+    buildBreadcrumbSchema([
+      { name: "Home", path: "" },
+      { name: "Contact", path: "/contact" },
+    ]),
+  );
 
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[1.5fr_1fr] lg:px-8 lg:py-20">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusiness) }} />
+      <JsonLd data={contactSchema} />
       <section>
         <h1 className="text-4xl lg:text-5xl">Start a Project</h1>
         <p className="mt-5 text-lg text-coastal-muted">{contact.intro}</p>

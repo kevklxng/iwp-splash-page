@@ -1,10 +1,19 @@
-import type { Metadata } from "next";
 import { getPartners, getPartnersPage } from "@/lib/cms";
+import { buildBreadcrumbSchema, buildSchemaGraph, JsonLd, pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Partners - Templeton Custom Homes",
-  description: "Architects, interior designers, and landscape architects Templeton Custom Homes has worked with.",
-};
+  description:
+    "Architects, interior designers, and landscape architects Templeton Custom Homes has worked with.",
+  path: "/partners",
+});
+
+const partnersSchema = buildSchemaGraph(
+  buildBreadcrumbSchema([
+    { name: "Home", path: "" },
+    { name: "Partners", path: "/partners" },
+  ]),
+);
 
 export default async function PartnersPage() {
   const [partners, page] = await Promise.all([getPartners(), getPartnersPage()]);
@@ -12,6 +21,7 @@ export default async function PartnersPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-20">
+      <JsonLd data={partnersSchema} />
       <h1 className="text-4xl lg:text-5xl">Partners</h1>
       <p className="mt-5 max-w-4xl text-lg leading-relaxed text-coastal-muted">{page.intro}</p>
       <div className="mt-10 grid gap-10 lg:grid-cols-3">
