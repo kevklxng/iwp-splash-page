@@ -5,22 +5,33 @@ import { PortableText } from "@/components/portable-text";
 import { SplashHome } from "@/components/splash-home";
 import { getFeaturedProjects, getHomePage } from "@/lib/cms";
 import { isSplashMode } from "@/lib/splash";
+import {
+  buildBreadcrumbSchema,
+  buildHomeAndConstructionBusinessSchema,
+  buildSchemaGraph,
+  DEFAULT_DESCRIPTION,
+  JsonLd,
+  pageMetadata,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from "@/lib/seo";
 
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   if (isSplashMode) {
-    return {
-      title: "Templeton Custom Homes — Coming soon",
+    return pageMetadata({
+      title: `${SITE_NAME} — Coming soon`,
       description:
         "Templeton Custom Homes is launching a new website. Follow us on Facebook or start a project — we serve coastal Orange County with transparent building and direct owner access.",
-    };
+      path: "/",
+    });
   }
-  return {
-    title: "Templeton Custom Homes - Newport Beach Custom Builder",
-    description:
-      "High-end coastal homes and remodels in Newport Beach, Costa Mesa, and Corona del Mar with itemized bids and direct owner access.",
-  };
+  return pageMetadata({
+    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+    description: DEFAULT_DESCRIPTION,
+    path: "/",
+  });
 }
 
 export default async function HomePage() {
@@ -34,8 +45,14 @@ export default async function HomePage() {
     featured[0]?.heroImage ||
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=75";
 
+  const homeSchema = buildSchemaGraph(
+    buildHomeAndConstructionBusinessSchema(),
+    buildBreadcrumbSchema([{ name: "Home", path: "" }]),
+  );
+
   return (
     <div>
+      <JsonLd data={homeSchema} />
       <section className="mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-2 lg:items-end lg:px-8 lg:py-20">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-coastal-muted">Templeton Custom Homes</p>
@@ -134,7 +151,7 @@ export default async function HomePage() {
           {home.aboutPreviewPhotoUrl ? (
             <Image
               src={home.aboutPreviewPhotoUrl}
-              alt="About preview"
+              alt="Joel Templeton and the Templeton Custom Homes team at a coastal Orange County project"
               width={800}
               height={600}
               sizes="(min-width: 1024px) 40vw, 100vw"
