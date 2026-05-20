@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, PROJECT_LOCATIONS, type ContactSchema } from "@/lib/contact-schema";
 
@@ -14,6 +15,7 @@ export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
@@ -53,11 +55,29 @@ export function ContactForm() {
       <Field label="Phone" error={errors.phone?.message}>
         <input type="tel" className="w-full border border-coastal-line bg-white px-4 py-3" {...register("phone")} aria-invalid={!!errors.phone} />
       </Field>
-      <SelectField label="Project type" error={errors.projectType?.message} options={projectTypes} {...register("projectType")} />
-      <SelectField label="Budget range" error={errors.budgetRange?.message} options={budgetRanges} {...register("budgetRange")} />
-      <SelectField label="When do you want to break ground?" error={errors.timeline?.message} options={timelines} {...register("timeline")} />
-      <SelectField label="Where are you in the process right now?" error={errors.drawingsStatus?.message} options={drawingStatuses} {...register("drawingsStatus")} />
-      <SelectField label="Project location" error={errors.projectLocation?.message} options={PROJECT_LOCATIONS} {...register("projectLocation")} />
+      <SelectField label="Project type" name="projectType" control={control} error={errors.projectType?.message} options={projectTypes} />
+      <SelectField label="Budget range" name="budgetRange" control={control} error={errors.budgetRange?.message} options={budgetRanges} />
+      <SelectField
+        label="When do you want to break ground?"
+        name="timeline"
+        control={control}
+        error={errors.timeline?.message}
+        options={timelines}
+      />
+      <SelectField
+        label="Where are you in the process right now?"
+        name="drawingsStatus"
+        control={control}
+        error={errors.drawingsStatus?.message}
+        options={drawingStatuses}
+      />
+      <SelectField
+        label="Project location"
+        name="projectLocation"
+        control={control}
+        error={errors.projectLocation?.message}
+        options={PROJECT_LOCATIONS}
+      />
       <Field label="Message (optional)" error={errors.message?.message}>
         <textarea className="w-full border border-coastal-line bg-white px-4 py-3" rows={5} {...register("message")} />
       </Field>
@@ -84,29 +104,36 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 
 function SelectField({
   label,
+  name,
+  control,
   error,
   options,
-  ...props
 }: {
   label: string;
+  name: keyof ContactSchema;
+  control: ReturnType<typeof useForm<ContactSchema>>["control"];
   error?: string;
   options: readonly string[];
-} & React.SelectHTMLAttributes<HTMLSelectElement>) {
+}) {
+  const fieldId = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div>
-      <label className="mb-2 block text-sm uppercase tracking-[0.08em]">
+      <label htmlFor={fieldId} className="mb-2 block text-sm uppercase tracking-[0.08em]">
         {label} *
       </label>
-      <select className="w-full border border-coastal-line bg-white px-4 py-3" defaultValue="" {...props}>
-        <option value="" disabled>
-          Select an option
-        </option>
-        {options.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <CustomSelect
+            id={fieldId}
+            options={options}
+            error={!!error}
+            aria-invalid={!!error}
+            {...field}
+          />
+        )}
+      />
       {error ? <p className="mt-1 text-sm text-red-700">{error}</p> : null}
     </div>
   );
