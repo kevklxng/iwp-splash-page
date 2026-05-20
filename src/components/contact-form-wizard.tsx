@@ -2,7 +2,8 @@
 
 import { clsx } from "clsx";
 import { useEffect, useId, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, PROJECT_LOCATIONS, type ContactSchema } from "@/lib/contact-schema";
 
@@ -96,8 +97,6 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
     ? "min-h-[44px] w-full rounded border border-white/25 bg-white/10 px-4 py-3 text-base text-white placeholder:text-white/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     : "min-h-[44px] w-full border border-coastal-line bg-white px-4 py-3 text-base text-coastal-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coastal-accent";
 
-  const selectClass = clsx(inputClass, glass && "[color-scheme:dark]");
-
   const invalidGlass = "border-red-400/80 bg-red-500/10";
   const invalidLight = "border-red-400 bg-red-50";
 
@@ -107,6 +106,7 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
 
   const {
     register,
+    control,
     handleSubmit,
     trigger,
     setFocus,
@@ -284,21 +284,20 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
               <label htmlFor={`${formId}-budget`} className={labelClass}>
                 Budget range <span className={reqClass}>*</span>
               </label>
-              <select
-                id={`${formId}-budget`}
-                className={clsx(selectClass, errors.budgetRange && (glass ? invalidGlass : invalidLight))}
-                defaultValue=""
-                {...register("budgetRange")}
-              >
-                <option value="" disabled>
-                  Select an option
-                </option>
-                {budgetRanges.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="budgetRange"
+                control={control}
+                render={({ field }) => (
+                  <CustomSelect
+                    id={`${formId}-budget`}
+                    options={budgetRanges}
+                    glass={glass}
+                    error={!!errors.budgetRange}
+                    aria-invalid={!!errors.budgetRange}
+                    {...field}
+                  />
+                )}
+              />
               {errors.budgetRange ? (
                 <p className={clsx(errClass, "mt-1")} role="alert">
                   {friendlyFieldError("budgetRange", errors.budgetRange.message)}
@@ -310,21 +309,20 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
               <label htmlFor={`${formId}-timeline`} className={labelClass}>
                 When do you want to break ground? <span className={reqClass}>*</span>
               </label>
-              <select
-                id={`${formId}-timeline`}
-                className={clsx(selectClass, errors.timeline && (glass ? invalidGlass : invalidLight))}
-                defaultValue=""
-                {...register("timeline")}
-              >
-                <option value="" disabled>
-                  Select an option
-                </option>
-                {timelines.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="timeline"
+                control={control}
+                render={({ field }) => (
+                  <CustomSelect
+                    id={`${formId}-timeline`}
+                    options={timelines}
+                    glass={glass}
+                    error={!!errors.timeline}
+                    aria-invalid={!!errors.timeline}
+                    {...field}
+                  />
+                )}
+              />
               {errors.timeline ? (
                 <p className={clsx(errClass, "mt-1")} role="alert">
                   {friendlyFieldError("timeline", errors.timeline.message)}
@@ -340,21 +338,20 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
               <label htmlFor={`${formId}-process`} className={labelClass}>
                 Where are you in the process right now? <span className={reqClass}>*</span>
               </label>
-              <select
-                id={`${formId}-process`}
-                className={clsx(selectClass, errors.drawingsStatus && (glass ? invalidGlass : invalidLight))}
-                defaultValue=""
-                {...register("drawingsStatus")}
-              >
-                <option value="" disabled>
-                  Select an option
-                </option>
-                {drawingStatuses.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="drawingsStatus"
+                control={control}
+                render={({ field }) => (
+                  <CustomSelect
+                    id={`${formId}-process`}
+                    options={drawingStatuses}
+                    glass={glass}
+                    error={!!errors.drawingsStatus}
+                    aria-invalid={!!errors.drawingsStatus}
+                    {...field}
+                  />
+                )}
+              />
               {errors.drawingsStatus ? (
                 <p className={clsx(errClass, "mt-1")} role="alert">
                   {friendlyFieldError("drawingsStatus", errors.drawingsStatus.message)}
@@ -366,22 +363,20 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
               <label htmlFor={`${formId}-location`} className={labelClass}>
                 Project location <span className={reqClass}>*</span>
               </label>
-              <select
-                id={`${formId}-location`}
-                className={clsx(selectClass, errors.projectLocation && (glass ? invalidGlass : invalidLight))}
-                defaultValue=""
-                {...register("projectLocation")}
-                aria-invalid={!!errors.projectLocation}
-              >
-                <option value="" disabled>
-                  Select an option
-                </option>
-                {PROJECT_LOCATIONS.map((loc) => (
-                  <option key={loc} value={loc}>
-                    {loc}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="projectLocation"
+                control={control}
+                render={({ field }) => (
+                  <CustomSelect
+                    id={`${formId}-location`}
+                    options={PROJECT_LOCATIONS}
+                    glass={glass}
+                    error={!!errors.projectLocation}
+                    aria-invalid={!!errors.projectLocation}
+                    {...field}
+                  />
+                )}
+              />
               {errors.projectLocation ? (
                 <p className={clsx(errClass, "mt-1")} role="alert">
                   {friendlyFieldError("projectLocation", errors.projectLocation.message)}
