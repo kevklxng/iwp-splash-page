@@ -17,6 +17,5 @@ export function isSplashMode(): boolean {
   return process.env.NEXT_PUBLIC_SPLASH_MODE === "true";
 }
 
-/** Facebook page URL for splash CTAs. */
-export const FACEBOOK_URL =
-  process.env.NEXT_PUBLIC_FACEBOOK_URL ?? "https://www.facebook.com/Templetoncustomhomes/";
+export const LINKEDIN_URL =
+  process.env.NEXT_PUBLIC_LINKEDIN_URL ?? "";

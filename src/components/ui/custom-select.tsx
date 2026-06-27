@@ -45,26 +45,30 @@ export const CustomSelect = forwardRef<HTMLButtonElement, CustomSelectProps>(fun
   const selectedValue = value && value.length > 0 ? value : null;
 
   const triggerClass = cn(
-    "flex min-h-[44px] w-full items-center justify-between gap-2 px-4 py-3 text-base text-left",
+    "flex min-h-[48px] w-full items-center justify-between gap-2 rounded-lg px-4 py-3 text-base text-left",
     glass
-      ? "rounded border border-white/25 bg-white/10 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-      : "border border-coastal-line bg-white text-coastal-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coastal-accent",
-    error && (glass ? "border-red-400/80 bg-red-500/10" : "border-red-400 bg-red-50"),
+      ? "border border-white/15 bg-white/[0.06] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e4642]"
+      : "border border-gray-300 bg-white text-[#1e4642] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e4642]",
+    error && (glass ? "border-red-400/60 bg-red-500/10" : "border-red-400 bg-red-50"),
     disabled && "cursor-not-allowed opacity-60",
     className,
   );
 
   const popupClass = cn(
-    "z-50 max-h-60 overflow-auto rounded border shadow-lg outline-none",
-    glass ? "border-white/25 bg-gray-900 text-white" : "border-coastal-line bg-white text-coastal-ink",
+    "z-50 max-h-60 overflow-auto rounded-lg border shadow-lg outline-none",
+    glass
+      ? "border-white/10 bg-[#0a0a0a] text-white"
+      : "border-gray-300 bg-white text-[#1e4642]",
   );
 
   const itemClass = cn(
     "cursor-default px-4 py-2.5 text-base outline-none",
-    glass ? "data-[highlighted]:bg-white/15" : "data-[highlighted]:bg-coastal-alt",
+    glass
+      ? "text-white data-[highlighted]:bg-white/10"
+      : "text-[#1e4642] data-[highlighted]:bg-[#1e4642]/10 data-[highlighted]:text-[#1e4642]",
   );
 
-  const placeholderClass = glass ? "text-white/45" : "text-coastal-ink/50";
+  const placeholderClass = glass ? "text-white/30" : "text-gray-400";
 
   return (
     <Select.Root
@@ -90,7 +94,7 @@ export const CustomSelect = forwardRef<HTMLButtonElement, CustomSelectProps>(fun
           placeholder={placeholder}
           className={(state) => cn("min-w-0 flex-1 truncate", state.placeholder && placeholderClass)}
         />
-        <Select.Icon className={cn("shrink-0", glass ? "text-white/70" : "text-coastal-ink/60")}>
+        <Select.Icon className={cn("shrink-0", glass ? "text-white/70" : "text-[#1e4642]/70")}>
           <ChevronDown className="h-4 w-4" aria-hidden />
         </Select.Icon>
       </Select.Trigger>

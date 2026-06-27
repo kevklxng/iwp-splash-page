@@ -21,9 +21,9 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   if (isSplashMode()) {
     return pageMetadata({
-      title: `${SITE_NAME} — Coming soon`,
+      title: `${SITE_NAME} — Coming Soon`,
       description:
-        "Templeton Custom Homes is launching a new website. Follow us on Facebook or start a project — we serve coastal Orange County with transparent building and direct owner access.",
+        "Itibari, Waynne & Partners — bringing stories to life. Something extraordinary is on the way.",
       path: "/",
     });
   }

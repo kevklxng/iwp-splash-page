@@ -6,15 +6,17 @@ type SubmissionRow = {
   id: number;
   submitted_at: Date;
   source_page: string | null;
-  name: string;
+  describes_you: string | null;
   email: string;
+  full_name: string;
+  linkedin: string | null;
   phone: string | null;
-  project_type: string | null;
-  budget_range: string | null;
-  timeline: string | null;
-  drawings_status: string | null;
-  project_location: string | null;
-  message: string | null;
+  referred_by: string | null;
+  investment_range: string | null;
+  industry: string | null;
+  service: string | null;
+  financing_participation: string | null;
+  lending_affiliation: string | null;
 };
 
 const BATCH_LIMIT = 50;
@@ -31,9 +33,9 @@ export async function GET(request: Request) {
   `;
 
   const { rows } = await sql<SubmissionRow>`
-    SELECT id, submitted_at, source_page, name, email, phone,
-           project_type, budget_range, timeline, drawings_status,
-           project_location, message
+    SELECT id, submitted_at, source_page, describes_you, email, full_name,
+           linkedin, phone, referred_by, investment_range, industry, service,
+           financing_participation, lending_affiliation
     FROM contact_submissions
     WHERE synced_to_sheet = FALSE
     ORDER BY submitted_at ASC
@@ -55,15 +57,17 @@ export async function GET(request: Request) {
       submissionId: String(r.id),
       submittedAt,
       sourcePage: r.source_page ?? undefined,
-      name: r.name,
+      describesYou: r.describes_you ?? undefined,
+      fullName: r.full_name,
       email: r.email,
+      linkedIn: r.linkedin ?? undefined,
       phone: r.phone ?? undefined,
-      projectType: r.project_type ?? undefined,
-      budgetRange: r.budget_range ?? undefined,
-      timeline: r.timeline ?? undefined,
-      drawingsStatus: r.drawings_status ?? undefined,
-      projectLocation: r.project_location ?? undefined,
-      message: r.message ?? undefined,
+      referredBy: r.referred_by ?? undefined,
+      investmentRange: r.investment_range ?? undefined,
+      industry: r.industry ?? undefined,
+      service: r.service ?? undefined,
+      financingParticipation: r.financing_participation ?? undefined,
+      lendingAffiliation: r.lending_affiliation ?? undefined,
     };
 
     try {

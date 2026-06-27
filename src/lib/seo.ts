@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { createElement } from "react";
 
-export const SITE_NAME = "Templeton Custom Homes";
-export const SITE_TAGLINE = "Newport Beach Custom Builder";
+export const SITE_NAME = "IWP";
+export const SITE_TAGLINE = "Bringing Stories to Life";
 export const DEFAULT_DESCRIPTION =
-  "High-end coastal homes and remodels in Newport Beach, Costa Mesa, and Corona del Mar with itemized bids and direct owner access.";
+  "Itibari, Waynne & Partners — bringing stories to life through visionary investment and creative partnerships.";
 
-const DEFAULT_SITE_URL = "https://www.templetoncustomhomes.com";
+const DEFAULT_SITE_URL = "https://www.iwp.fund";
 
 /** Canonical production origin (no trailing slash). */
 export function getSiteUrl(): string {
@@ -26,17 +26,17 @@ export const DEFAULT_OG_IMAGE = {
   url: DEFAULT_OG_IMAGE_PATH,
   width: 1200,
   height: 630,
-  alt: `${SITE_NAME} — custom homes in coastal Orange County`,
+  alt: `${SITE_NAME} — ${SITE_TAGLINE}`,
 } as const;
 
 export const ORGANIZATION_SAME_AS = [
-  process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://www.facebook.com/Templetoncustomhomes/",
+  process.env.NEXT_PUBLIC_LINKEDIN_URL || "",
 ].filter(Boolean);
 
 export const BUSINESS_CONTACT = {
-  email: "joel@templetoncustomhomes.com",
-  phone: "+19499332459",
-  telephoneDisplay: "(949) 933-2459",
+  email: "info@iwp.fund",
+  phone: "",
+  telephoneDisplay: "",
 } as const;
 
 type BreadcrumbItem = { name: string; path: string };
@@ -103,13 +103,13 @@ export function buildOrganizationSchema() {
     "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
-    logo: absoluteUrl("/SVGtch.svg"),
+    logo: absoluteUrl("/iwp-logo.svg"),
     email: BUSINESS_CONTACT.email,
     telephone: BUSINESS_CONTACT.phone,
     sameAs: ORGANIZATION_SAME_AS,
     areaServed: {
       "@type": "AdministrativeArea",
-      name: "Orange County, California",
+      name: "Global",
     },
   };
 }
@@ -251,7 +251,7 @@ export function buildFaqPageSchema(
   if (intro?.trim()) {
     entities.push({
       "@type": "Question",
-      name: "How does Templeton Custom Homes approach building?",
+      name: "How does IWP approach its work?",
       acceptedAnswer: { "@type": "Answer", text: intro.trim() },
     });
   }

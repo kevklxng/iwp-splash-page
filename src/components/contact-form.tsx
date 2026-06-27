@@ -4,12 +4,15 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { contactSchema, PROJECT_LOCATIONS, type ContactSchema } from "@/lib/contact-schema";
-
-const projectTypes = ["Full Custom Build", "Remodel / Addition to Home", "Investment Property", "ADU"] as const;
-const budgetRanges = ["$500K-$1M", "$1M-$3M", "$3M-$7M", "$7M-$15M", "$15M+"] as const;
-const timelines = ["ASAP", "1–3 months", "3–6 months", "6–12 months", "12+ months"] as const;
-const drawingStatuses = ["Just exploring ideas", "Planning or early design", "Plans in progress", "Plans complete / Permits pending", "Permits approved / Ready to Build"] as const;
+import {
+  contactSchema,
+  DESCRIBES_YOU_OPTIONS,
+  INVESTMENT_RANGE_OPTIONS,
+  INDUSTRY_OPTIONS,
+  FINANCING_PARTICIPATION_OPTIONS,
+  LENDING_AFFILIATION_OPTIONS,
+  type ContactSchema,
+} from "@/lib/contact-schema";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -40,50 +43,38 @@ export function ContactForm() {
   }
 
   if (status === "success") {
-    return <p className="border border-coastal-line bg-coastal-alt p-6 text-lg">Got it. Joel will be in touch within one business day.</p>;
+    return <p className="border border-coastal-line bg-coastal-alt p-6 text-lg">Thank you for your interest. We&apos;ll be in touch soon.</p>;
   }
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
       <input type="text" className="hidden" tabIndex={-1} autoComplete="off" {...register("company")} />
-      <Field label="Name" error={errors.name?.message}>
-        <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("name")} aria-invalid={!!errors.name} />
-      </Field>
+      <SelectField label="Which best describes you?" name="describesYou" control={control} error={errors.describesYou?.message} options={DESCRIBES_YOU_OPTIONS} />
       <Field label="Email" error={errors.email?.message}>
         <input type="email" className="w-full border border-coastal-line bg-white px-4 py-3" {...register("email")} aria-invalid={!!errors.email} />
+      </Field>
+      <Field label="Full Name" error={errors.fullName?.message}>
+        <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("fullName")} aria-invalid={!!errors.fullName} />
+      </Field>
+      <Field label="What is your LinkedIn?" error={errors.linkedIn?.message}>
+        <input type="url" placeholder="LinkedIn URL goes here" className="w-full border border-coastal-line bg-white px-4 py-3" {...register("linkedIn")} aria-invalid={!!errors.linkedIn} />
       </Field>
       <Field label="Phone" error={errors.phone?.message}>
         <input type="tel" className="w-full border border-coastal-line bg-white px-4 py-3" {...register("phone")} aria-invalid={!!errors.phone} />
       </Field>
-      <SelectField label="Project type" name="projectType" control={control} error={errors.projectType?.message} options={projectTypes} />
-      <SelectField label="Budget range" name="budgetRange" control={control} error={errors.budgetRange?.message} options={budgetRanges} />
-      <SelectField
-        label="When do you want to break ground?"
-        name="timeline"
-        control={control}
-        error={errors.timeline?.message}
-        options={timelines}
-      />
-      <SelectField
-        label="Where are you in the process right now?"
-        name="drawingsStatus"
-        control={control}
-        error={errors.drawingsStatus?.message}
-        options={drawingStatuses}
-      />
-      <SelectField
-        label="Project location"
-        name="projectLocation"
-        control={control}
-        error={errors.projectLocation?.message}
-        options={PROJECT_LOCATIONS}
-      />
-      <Field label="Message (optional)" error={errors.message?.message}>
-        <textarea className="w-full border border-coastal-line bg-white px-4 py-3" rows={5} {...register("message")} />
+      <Field label="Who referred you?" error={errors.referredBy?.message}>
+        <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("referredBy")} aria-invalid={!!errors.referredBy} />
       </Field>
-      {status === "error" ? <p className="text-sm text-red-700">Submission failed. Please call or email directly.</p> : null}
+      <SelectField label="What investment range are you comfortable deploying?" name="investmentRange" control={control} error={errors.investmentRange?.message} options={INVESTMENT_RANGE_OPTIONS} />
+      <SelectField label="What industry do you provide services for?" name="industry" control={control} error={errors.industry?.message} options={INDUSTRY_OPTIONS} />
+      <Field label="What service do you provide?" error={errors.service?.message}>
+        <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("service")} aria-invalid={!!errors.service} />
+      </Field>
+      <SelectField label="How do you typically participate in financing opportunities?" name="financingParticipation" control={control} error={errors.financingParticipation?.message} options={FINANCING_PARTICIPATION_OPTIONS} />
+      <SelectField label="Are you affiliated with a certified lending institution or government-backed program?" name="lendingAffiliation" control={control} error={errors.lendingAffiliation?.message} options={LENDING_AFFILIATION_OPTIONS} />
+      {status === "error" ? <p className="text-sm text-red-700">Submission failed. Please try again.</p> : null}
       <button type="submit" disabled={status === "submitting"} className="rounded px-5 py-3 text-white disabled:opacity-70" style={{ backgroundColor: "var(--color-accent)" }}>
-        {status === "submitting" ? "Sending..." : "Submit project details"}
+        {status === "submitting" ? "Submitting..." : "Submit"}
       </button>
     </form>
   );

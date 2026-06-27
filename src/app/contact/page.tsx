@@ -10,8 +10,8 @@ import {
 } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Start a Project - Templeton Custom Homes",
-  description: "Let's talk specifics. Joel reads every inquiry and responds within one business day.",
+  title: "Learn More - IWP",
+  description: "Get in touch with Itibari, Waynne & Partners. We respond to every inquiry promptly.",
   path: "/contact",
 });
 

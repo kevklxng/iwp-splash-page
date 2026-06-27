@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Source_Serif_4 } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
@@ -22,10 +22,16 @@ import {
   SITE_URL,
 } from "@/lib/seo";
 
-const sourceSerif = Source_Serif_4({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-source-serif",
+  variable: "--font-space-grotesk",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -60,7 +66,7 @@ const globalSchema = buildSchemaGraph(buildOrganizationSchema(), buildWebSiteSch
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const gaId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
   return (
-    <html lang="en" className={sourceSerif.variable}>
+    <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body>
         <JsonLd data={globalSchema} />
         {gaId ? (
@@ -81,7 +87,7 @@ gtag('config', '${gaId}');`}
             fallback={
               <footer className="border-t border-coastal-line bg-coastal-alt">
                 <div className="mx-auto w-full max-w-7xl px-6 py-12 text-sm text-coastal-muted lg:px-8">
-                  Templeton Custom Homes
+                  IWP
                 </div>
               </footer>
             }

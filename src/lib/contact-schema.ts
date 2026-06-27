@@ -1,17 +1,45 @@
 import { z } from "zod";
 
-/** Standard spellings for Orange County coastal areas */
-export const PROJECT_LOCATIONS = [
-  "Newport Beach",
-  "Newport Coast",
-  "Corona del Mar",
-  "Costa Mesa",
-  "Laguna Beach",
-  "San Clemente",
+export const DESCRIBES_YOU_OPTIONS = [
+  "Investor",
+  "Lender",
+  "Service Provider",
   "Other",
 ] as const;
 
-/** Coerce empty strings (from unselected `<select>`) to undefined so required_error fires. */
+export const INVESTMENT_RANGE_OPTIONS = [
+  "Under $100K",
+  "$100K – $500K",
+  "$500K – $1M",
+  "$1M – $5M",
+  "$5M – $10M",
+  "$10M+",
+] as const;
+
+export const INDUSTRY_OPTIONS = [
+  "Entertainment",
+  "Film & Television",
+  "Music",
+  "Gaming",
+  "Sports",
+  "Technology",
+  "Real Estate",
+  "Other",
+] as const;
+
+export const FINANCING_PARTICIPATION_OPTIONS = [
+  "Direct Investment",
+  "Fund Investment",
+  "Lending",
+  "Advisory",
+  "Other",
+] as const;
+
+export const LENDING_AFFILIATION_OPTIONS = [
+  "Yes",
+  "No",
+] as const;
+
 const emptyToUndefined = z.preprocess((v) => (v === "" ? undefined : v), z.any());
 
 function enumField<T extends readonly [string, ...string[]]>(values: T, message: string) {
@@ -19,27 +47,32 @@ function enumField<T extends readonly [string, ...string[]]>(values: T, message:
 }
 
 export const contactSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  describesYou: enumField(
+    [...DESCRIBES_YOU_OPTIONS],
+    "Please select which best describes you.",
+  ),
   email: z.string().email("Valid email is required"),
+  fullName: z.string().min(1, "Full name is required"),
+  linkedIn: z.string().min(1, "LinkedIn URL is required"),
   phone: z.string().min(1, "Phone is required"),
-  projectType: enumField(
-    ["Full Custom Build", "Remodel / Addition to Home", "Investment Property", "ADU"],
-    "Please select a project type.",
+  referredBy: z.string().min(1, "Please let us know who referred you"),
+  investmentRange: enumField(
+    [...INVESTMENT_RANGE_OPTIONS],
+    "Please select an investment range.",
   ),
-  budgetRange: enumField(
-    ["$500K-$1M", "$1M-$3M", "$3M-$7M", "$7M-$15M", "$15M+"],
-    "Please select a budget range.",
+  industry: enumField(
+    [...INDUSTRY_OPTIONS],
+    "Please select an industry.",
   ),
-  timeline: enumField(
-    ["ASAP", "1–3 months", "3–6 months", "6–12 months", "12+ months"],
-    "Please select a timeline.",
+  service: z.string().min(1, "Please describe your service"),
+  financingParticipation: enumField(
+    [...FINANCING_PARTICIPATION_OPTIONS],
+    "Please select how you participate.",
   ),
-  drawingsStatus: enumField(
-    ["Just exploring ideas", "Planning or early design", "Plans in progress", "Plans complete / Permits pending", "Permits approved / Ready to Build"],
-    "Please select where you are in the process.",
+  lendingAffiliation: enumField(
+    [...LENDING_AFFILIATION_OPTIONS],
+    "Please select an option.",
   ),
-  projectLocation: enumField([...PROJECT_LOCATIONS], "Please select a project location."),
-  message: z.string().optional(),
   company: z.string().optional(),
   sourcePage: z.string().max(500).optional(),
 });

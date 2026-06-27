@@ -1,185 +1,52 @@
 "use client";
 
 import { clsx } from "clsx";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { contactSchema, PROJECT_LOCATIONS, type ContactSchema } from "@/lib/contact-schema";
-
-const projectTypes = ["Full Custom Build", "Remodel / Addition to Home", "Investment Property", "ADU"] as const;
-const budgetRanges = ["$500K-$1M", "$1M-$3M", "$3M-$7M", "$7M-$15M", "$15M+"] as const;
-const timelines = ["ASAP", "1–3 months", "3–6 months", "6–12 months", "12+ months"] as const;
-const drawingStatuses = [
-  "Just exploring ideas",
-  "Planning or early design",
-  "Plans in progress",
-  "Plans complete / Permits pending",
-  "Permits approved / Ready to Build",
-] as const;
-
-const STEPS = [
-  { id: 1, title: "Let's talk specifics", fields: ["projectType", "budgetRange", "timeline"] as const },
-  { id: 2, title: "Where things stand", fields: ["drawingsStatus", "projectLocation"] as const },
-  { id: 3, title: "How can we reach you?", fields: ["name", "email", "phone"] as const },
-] as const;
-
-type StepIndex = 0 | 1 | 2;
-type StepField = (typeof STEPS)[StepIndex]["fields"][number];
-
-function prettyStepFieldName(field: StepField): string {
-  const map: Record<StepField, string> = {
-    projectType: "Project type",
-    budgetRange: "Budget range",
-    timeline: "Timeline",
-    drawingsStatus: "Process status",
-    projectLocation: "Project location",
-    name: "Name",
-    email: "Email",
-    phone: "Phone",
-  };
-  return map[field];
-}
-
-/** DOM id for scroll/focus (matches existing select/input ids). */
-function domIdForStepField(formId: string, field: StepField): string {
-  if (field === "projectType") return `${formId}-projectType`;
-  if (field === "budgetRange") return `${formId}-budget`;
-  if (field === "drawingsStatus") return `${formId}-process`;
-  if (field === "projectLocation") return `${formId}-location`;
-  return `${formId}-${field}`;
-}
-
-function friendlyFieldError(field: StepField | "projectType", message?: string): string | undefined {
-  if (!message) return undefined;
-  if (field === "email" && message.toLowerCase().includes("email")) {
-    return "Please enter a valid email address.";
-  }
-  if (message === "Name is required") return "Please enter your name.";
-  if (message === "Phone is required") return "Please enter your phone number.";
-  if (message === "Valid email is required") return "Please enter a valid email address.";
-  if (field === "projectLocation") return "Please select a project location.";
-  if (field === "projectType" && (message.includes("Invalid") || message.includes("Required"))) {
-    return "Please select a project type.";
-  }
-  if (message.includes("Invalid") && (field === "budgetRange" || field === "timeline" || field === "drawingsStatus")) {
-    return "Please select an option.";
-  }
-  return message;
-}
-
-const btnClass =
-  "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded px-5 py-3 text-base font-medium transition-opacity disabled:opacity-60";
+import {
+  contactSchema,
+  DESCRIBES_YOU_OPTIONS,
+  INVESTMENT_RANGE_OPTIONS,
+  INDUSTRY_OPTIONS,
+  FINANCING_PARTICIPATION_OPTIONS,
+  LENDING_AFFILIATION_OPTIONS,
+  type ContactSchema,
+} from "@/lib/contact-schema";
 
 export type ContactFormWizardProps = {
-  /** `glass` — translucent controls for splash hero over photography */
   appearance?: "default" | "glass";
 };
 
 export function ContactFormWizard({ appearance = "default" }: ContactFormWizardProps) {
-  const glass = appearance === "glass";
   const formId = useId();
-  const [stepIndex, setStepIndex] = useState<StepIndex>(0);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [missingFields, setMissingFields] = useState<StepField[]>([]);
-
-  const shellClass = glass
-    ? "rounded-xl p-6 lg:p-8"
-    : "rounded-lg border border-coastal-line bg-white p-6 shadow-sm lg:p-8";
-
-  const labelClass = glass
-    ? "mb-2 block text-sm uppercase tracking-[0.08em] text-white/90"
-    : "mb-2 block text-sm uppercase tracking-[0.08em] text-coastal-ink";
-
-  const reqClass = glass ? "text-red-300" : "text-red-700";
-
-  const inputClass = glass
-    ? "min-h-[44px] w-full rounded border border-white/25 bg-white/10 px-4 py-3 text-base text-white placeholder:text-white/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-    : "min-h-[44px] w-full border border-coastal-line bg-white px-4 py-3 text-base text-coastal-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coastal-accent";
-
-  const invalidGlass = "border-red-400/80 bg-red-500/10";
-  const invalidLight = "border-red-400 bg-red-50";
-
-  const errClass = glass ? "text-sm text-red-200" : "text-sm text-red-700";
-
-  const titleClass = glass ? "text-xl font-medium text-white lg:text-2xl" : "text-xl font-medium text-coastal-ink lg:text-2xl";
 
   const {
     register,
     control,
     handleSubmit,
-    trigger,
-    setFocus,
-    getFieldState,
-    watch,
     formState: { errors },
   } = useForm<ContactSchema>({
     resolver: zodResolver(contactSchema),
     mode: "onTouched",
     defaultValues: {
-      name: "",
+      describesYou: undefined,
       email: "",
+      fullName: "",
+      linkedIn: "",
       phone: "",
-      projectType: undefined,
-      budgetRange: undefined,
-      timeline: undefined,
-      drawingsStatus: undefined,
-      projectLocation: undefined,
-      message: undefined,
+      referredBy: "",
+      investmentRange: undefined,
+      industry: undefined,
+      service: "",
+      financingParticipation: undefined,
+      lendingAffiliation: undefined,
       company: "",
       sourcePage: undefined,
     },
   });
-
-  const step = STEPS[stepIndex];
-  const stepTitleId = `${formId}-step-${step.id}-title`;
-  const selectedProjectType = watch("projectType");
-  const values = watch();
-
-  const stepComplete = step.fields.every((f) => {
-    const v = values[f as keyof ContactSchema];
-    return v !== undefined && v !== "" && v !== null;
-  });
-
-  useEffect(() => {
-    const first = STEPS[stepIndex].fields[0];
-    const t = requestAnimationFrame(() => setFocus(first));
-    return () => cancelAnimationFrame(t);
-  }, [stepIndex, setFocus]);
-
-  useEffect(() => {
-    setMissingFields([]);
-  }, [stepIndex]);
-
-  async function goNext() {
-    const fields = [...step.fields] as StepField[];
-    const ok = await trigger(fields);
-    if (!ok) {
-      const invalid = fields.filter((f) => getFieldState(f).invalid);
-      setMissingFields(invalid);
-      const firstInvalid = invalid[0];
-      if (firstInvalid) {
-        const el = document.getElementById(domIdForStepField(formId, firstInvalid));
-        el?.scrollIntoView({ behavior: "smooth", block: "center" });
-        try {
-          setFocus(firstInvalid);
-        } catch {
-          /* radio groups can't be focused via setFocus */
-        }
-      }
-      return;
-    }
-    setMissingFields([]);
-    if (stepIndex < 2) {
-      setStepIndex((s) => (s + 1) as StepIndex);
-    }
-  }
-
-  function goBack() {
-    if (stepIndex > 0) {
-      setStepIndex((s) => (s - 1) as StepIndex);
-    }
-  }
 
   async function onSubmit(values: ContactSchema) {
     setStatus("submitting");
@@ -197,320 +64,280 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
     setStatus("success");
   }
 
+  const labelClass = "mb-1.5 block text-sm font-semibold text-gray-800";
+  const reqClass = "text-red-500";
+  const inputClass =
+    "min-h-[48px] w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e4642]";
+  const invalidClass = "border-red-400 bg-red-50";
+  const errClass = "mt-1 text-sm text-red-600";
+
   if (status === "success") {
     return (
-      <div
-        className={clsx(
-          shellClass,
-          glass && "border border-white/15 bg-white/10 shadow-inner backdrop-blur-sm",
-        )}
-        role="status"
-        aria-live="polite"
-      >
-        <p className={clsx("text-center text-lg", glass ? "text-white" : "text-coastal-ink")}>
-          Got it. Joel will be in touch within one business day.
+      <div className="rounded-2xl bg-white p-8 text-center shadow-lg lg:p-10" role="status" aria-live="polite">
+        <p className="text-lg font-medium text-gray-900">
+          Thank you for your interest. We&apos;ll be in touch soon.
         </p>
       </div>
     );
   }
 
   return (
-    <div className={clsx(shellClass, glass && "border border-white/10 bg-white/5 shadow-inner")}>
-      <p className="sr-only" aria-live="polite">
-        Step {step.id} of {STEPS.length}: {step.title}
-      </p>
-      <ol className="mb-6 flex list-none items-center justify-center gap-2 p-0" aria-label="Form progress">
-        {STEPS.map((s, i) => (
-          <li key={s.id} className="list-none">
-            <span
-              className={clsx(
-                "block h-2.5 w-2.5 rounded-full",
-                glass ? (i === stepIndex ? "bg-white" : "bg-white/35") : i === stepIndex ? "bg-coastal-accent" : "bg-coastal-line",
-              )}
-              aria-current={i === stepIndex ? "step" : undefined}
-              aria-label={`Step ${s.id} of ${STEPS.length}${i === stepIndex ? ", current" : ""}`}
-            />
-          </li>
-        ))}
-      </ol>
-
-      <form id={formId} aria-labelledby={stepTitleId} className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <div className="rounded-2xl bg-white p-6 shadow-lg lg:p-10">
+      <form id={formId} className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input type="text" className="hidden" tabIndex={-1} autoComplete="off" {...register("company")} />
 
-        <h2 id={stepTitleId} className={titleClass}>
-          {step.title}
-        </h2>
-
-        {stepIndex === 0 ? (
-          <>
-            <fieldset id={`${formId}-projectType`} className="space-y-2">
-              <legend className={labelClass}>
-                Project type <span className={reqClass}>*</span>
-              </legend>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {projectTypes.map((pt) => (
-                  <label
-                    key={pt}
-                    className={clsx(
-                      "flex min-h-[44px] cursor-pointer items-center rounded border px-3 py-2 text-sm leading-snug transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2",
-                      glass && "text-white",
-                      glass ? "focus-within:outline-white" : "focus-within:outline-coastal-accent",
-                      selectedProjectType === pt
-                        ? glass
-                          ? "border-white bg-white/20 ring-1 ring-white/80"
-                          : "border-coastal-accent bg-coastal-alt ring-1 ring-coastal-accent"
-                        : errors.projectType
-                          ? glass
-                            ? "border-red-400/90"
-                            : "border-red-300"
-                          : glass
-                            ? "border-white/30 text-white hover:border-white/55"
-                            : "border-coastal-line hover:border-coastal-accent",
-                    )}
-                  >
-                    <input type="radio" value={pt} className="sr-only" {...register("projectType")} />
-                    <span>{pt}</span>
-                  </label>
-                ))}
-              </div>
-              {errors.projectType ? (
-                <p className={clsx(errClass)} role="alert">
-                  {friendlyFieldError("projectType", errors.projectType.message)}
-                </p>
-              ) : null}
-            </fieldset>
-
-            <div>
-              <label htmlFor={`${formId}-budget`} className={labelClass}>
-                Budget range <span className={reqClass}>*</span>
-              </label>
-              <Controller
-                name="budgetRange"
-                control={control}
-                render={({ field }) => (
-                  <CustomSelect
-                    id={`${formId}-budget`}
-                    options={budgetRanges}
-                    glass={glass}
-                    error={!!errors.budgetRange}
-                    aria-invalid={!!errors.budgetRange}
-                    {...field}
-                  />
-                )}
+        {/* Which best describes you? */}
+        <div>
+          <label htmlFor={`${formId}-describes`} className={labelClass}>
+            Which best describes you? <span className={reqClass}>*</span>
+          </label>
+          <Controller
+            name="describesYou"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                id={`${formId}-describes`}
+                options={DESCRIBES_YOU_OPTIONS}
+                placeholder="Select an option"
+                error={!!errors.describesYou}
+                aria-invalid={!!errors.describesYou}
+                {...field}
               />
-              {errors.budgetRange ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("budgetRange", errors.budgetRange.message)}
-                </p>
-              ) : null}
-            </div>
+            )}
+          />
+          {errors.describesYou ? (
+            <p className={errClass} role="alert">{errors.describesYou.message}</p>
+          ) : null}
+        </div>
 
-            <div>
-              <label htmlFor={`${formId}-timeline`} className={labelClass}>
-                When do you want to break ground? <span className={reqClass}>*</span>
-              </label>
-              <Controller
-                name="timeline"
-                control={control}
-                render={({ field }) => (
-                  <CustomSelect
-                    id={`${formId}-timeline`}
-                    options={timelines}
-                    glass={glass}
-                    error={!!errors.timeline}
-                    aria-invalid={!!errors.timeline}
-                    {...field}
-                  />
-                )}
-              />
-              {errors.timeline ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("timeline", errors.timeline.message)}
-                </p>
-              ) : null}
-            </div>
-          </>
-        ) : null}
+        {/* Email */}
+        <div>
+          <label htmlFor={`${formId}-email`} className={labelClass}>
+            Email <span className={reqClass}>*</span>
+          </label>
+          <input
+            id={`${formId}-email`}
+            type="email"
+            placeholder="Email"
+            className={clsx(inputClass, errors.email && invalidClass)}
+            autoComplete="email"
+            inputMode="email"
+            {...register("email")}
+            aria-invalid={!!errors.email}
+          />
+          {errors.email ? (
+            <p className={errClass} role="alert">{errors.email.message}</p>
+          ) : null}
+        </div>
 
-        {stepIndex === 1 ? (
-          <>
-            <div>
-              <label htmlFor={`${formId}-process`} className={labelClass}>
-                Where are you in the process right now? <span className={reqClass}>*</span>
-              </label>
-              <Controller
-                name="drawingsStatus"
-                control={control}
-                render={({ field }) => (
-                  <CustomSelect
-                    id={`${formId}-process`}
-                    options={drawingStatuses}
-                    glass={glass}
-                    error={!!errors.drawingsStatus}
-                    aria-invalid={!!errors.drawingsStatus}
-                    {...field}
-                  />
-                )}
-              />
-              {errors.drawingsStatus ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("drawingsStatus", errors.drawingsStatus.message)}
-                </p>
-              ) : null}
-            </div>
+        {/* Full Name */}
+        <div>
+          <label htmlFor={`${formId}-fullName`} className={labelClass}>
+            Full Name <span className={reqClass}>*</span>
+          </label>
+          <input
+            id={`${formId}-fullName`}
+            type="text"
+            placeholder="Full Name"
+            className={clsx(inputClass, errors.fullName && invalidClass)}
+            autoComplete="name"
+            {...register("fullName")}
+            aria-invalid={!!errors.fullName}
+          />
+          {errors.fullName ? (
+            <p className={errClass} role="alert">{errors.fullName.message}</p>
+          ) : null}
+        </div>
 
-            <div>
-              <label htmlFor={`${formId}-location`} className={labelClass}>
-                Project location <span className={reqClass}>*</span>
-              </label>
-              <Controller
-                name="projectLocation"
-                control={control}
-                render={({ field }) => (
-                  <CustomSelect
-                    id={`${formId}-location`}
-                    options={PROJECT_LOCATIONS}
-                    glass={glass}
-                    error={!!errors.projectLocation}
-                    aria-invalid={!!errors.projectLocation}
-                    {...field}
-                  />
-                )}
-              />
-              {errors.projectLocation ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("projectLocation", errors.projectLocation.message)}
-                </p>
-              ) : null}
-            </div>
-          </>
-        ) : null}
+        {/* LinkedIn */}
+        <div>
+          <label htmlFor={`${formId}-linkedin`} className={labelClass}>
+            What is your LinkedIn? <span className={reqClass}>*</span>
+          </label>
+          <input
+            id={`${formId}-linkedin`}
+            type="url"
+            placeholder="LinkedIn URL goes here"
+            className={clsx(inputClass, errors.linkedIn && invalidClass)}
+            {...register("linkedIn")}
+            aria-invalid={!!errors.linkedIn}
+          />
+          {errors.linkedIn ? (
+            <p className={errClass} role="alert">{errors.linkedIn.message}</p>
+          ) : null}
+        </div>
 
-        {stepIndex === 2 ? (
-          <>
-            <div>
-              <label htmlFor={`${formId}-name`} className={labelClass}>
-                Name <span className={reqClass}>*</span>
-              </label>
-              <input
-                id={`${formId}-name`}
-                type="text"
-                className={clsx(inputClass, errors.name && (glass ? invalidGlass : invalidLight))}
-                autoComplete="name"
-                {...register("name")}
-                aria-invalid={!!errors.name}
-              />
-              {errors.name ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("name", errors.name.message)}
-                </p>
-              ) : null}
-            </div>
+        {/* Phone */}
+        <div>
+          <label htmlFor={`${formId}-phone`} className={labelClass}>
+            Phone <span className={reqClass}>*</span>
+          </label>
+          <input
+            id={`${formId}-phone`}
+            type="tel"
+            placeholder="Phone"
+            className={clsx(inputClass, errors.phone && invalidClass)}
+            autoComplete="tel"
+            inputMode="tel"
+            {...register("phone")}
+            aria-invalid={!!errors.phone}
+          />
+          {errors.phone ? (
+            <p className={errClass} role="alert">{errors.phone.message}</p>
+          ) : null}
+        </div>
 
-            <div>
-              <label htmlFor={`${formId}-email`} className={labelClass}>
-                Email <span className={reqClass}>*</span>
-              </label>
-              <input
-                id={`${formId}-email`}
-                type="email"
-                className={clsx(inputClass, errors.email && (glass ? invalidGlass : invalidLight))}
-                autoComplete="email"
-                inputMode="email"
-                {...register("email")}
-                aria-invalid={!!errors.email}
-              />
-              {errors.email ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("email", errors.email.message)}
-                </p>
-              ) : null}
-            </div>
+        {/* Who referred you? */}
+        <div>
+          <label htmlFor={`${formId}-referral`} className={labelClass}>
+            Who referred you? <span className={reqClass}>*</span>
+          </label>
+          <input
+            id={`${formId}-referral`}
+            type="text"
+            className={clsx(inputClass, errors.referredBy && invalidClass)}
+            {...register("referredBy")}
+            aria-invalid={!!errors.referredBy}
+          />
+          {errors.referredBy ? (
+            <p className={errClass} role="alert">{errors.referredBy.message}</p>
+          ) : null}
+        </div>
 
-            <div>
-              <label htmlFor={`${formId}-phone`} className={labelClass}>
-                Phone <span className={reqClass}>*</span>
-              </label>
-              <input
-                id={`${formId}-phone`}
-                type="tel"
-                className={clsx(inputClass, errors.phone && (glass ? invalidGlass : invalidLight))}
-                autoComplete="tel"
-                inputMode="tel"
-                {...register("phone")}
-                aria-invalid={!!errors.phone}
+        {/* Investment Range */}
+        <div>
+          <label htmlFor={`${formId}-investment`} className={labelClass}>
+            What investment range are you comfortable deploying? <span className={reqClass}>*</span>
+          </label>
+          <Controller
+            name="investmentRange"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                id={`${formId}-investment`}
+                options={INVESTMENT_RANGE_OPTIONS}
+                placeholder="Select an option"
+                error={!!errors.investmentRange}
+                aria-invalid={!!errors.investmentRange}
+                {...field}
               />
-              {errors.phone ? (
-                <p className={clsx(errClass, "mt-1")} role="alert">
-                  {friendlyFieldError("phone", errors.phone.message)}
-                </p>
-              ) : null}
-            </div>
-          </>
-        ) : null}
+            )}
+          />
+          {errors.investmentRange ? (
+            <p className={errClass} role="alert">{errors.investmentRange.message}</p>
+          ) : null}
+        </div>
+
+        {/* Industry */}
+        <div>
+          <label htmlFor={`${formId}-industry`} className={labelClass}>
+            What industry do you provide services for? <span className={reqClass}>*</span>
+          </label>
+          <Controller
+            name="industry"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                id={`${formId}-industry`}
+                options={INDUSTRY_OPTIONS}
+                placeholder="Select an option"
+                error={!!errors.industry}
+                aria-invalid={!!errors.industry}
+                {...field}
+              />
+            )}
+          />
+          {errors.industry ? (
+            <p className={errClass} role="alert">{errors.industry.message}</p>
+          ) : null}
+        </div>
+
+        {/* Service */}
+        <div>
+          <label htmlFor={`${formId}-service`} className={labelClass}>
+            What service do you provide? <span className={reqClass}>*</span>
+          </label>
+          <input
+            id={`${formId}-service`}
+            type="text"
+            className={clsx(inputClass, errors.service && invalidClass)}
+            {...register("service")}
+            aria-invalid={!!errors.service}
+          />
+          {errors.service ? (
+            <p className={errClass} role="alert">{errors.service.message}</p>
+          ) : null}
+        </div>
+
+        {/* Financing Participation */}
+        <div>
+          <label htmlFor={`${formId}-financing`} className={labelClass}>
+            How do you typically participate in financing opportunities? <span className={reqClass}>*</span>
+          </label>
+          <Controller
+            name="financingParticipation"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                id={`${formId}-financing`}
+                options={FINANCING_PARTICIPATION_OPTIONS}
+                placeholder="Select an option"
+                error={!!errors.financingParticipation}
+                aria-invalid={!!errors.financingParticipation}
+                {...field}
+              />
+            )}
+          />
+          {errors.financingParticipation ? (
+            <p className={errClass} role="alert">{errors.financingParticipation.message}</p>
+          ) : null}
+        </div>
+
+        {/* Lending Affiliation */}
+        <div>
+          <label htmlFor={`${formId}-lending`} className={labelClass}>
+            Are you currently affiliated with a certified lending institution or government-backed program? <span className={reqClass}>*</span>
+          </label>
+          <Controller
+            name="lendingAffiliation"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                id={`${formId}-lending`}
+                options={LENDING_AFFILIATION_OPTIONS}
+                placeholder="Select an option"
+                error={!!errors.lendingAffiliation}
+                aria-invalid={!!errors.lendingAffiliation}
+                {...field}
+              />
+            )}
+          />
+          {errors.lendingAffiliation ? (
+            <p className={errClass} role="alert">{errors.lendingAffiliation.message}</p>
+          ) : null}
+        </div>
 
         {status === "error" ? (
-          <p className={clsx(errClass)} role="alert">
-            Something went wrong. Please try again or call us directly.
+          <p className="text-sm text-red-600" role="alert">
+            Something went wrong. Please try again.
           </p>
         ) : null}
 
-        {missingFields.length > 0 ? (
-          <div
-            role="alert"
-            className={clsx(
-              "rounded border px-3 py-2 text-sm",
-              glass ? "border-red-300/50 bg-red-500/15 text-red-100" : "border-red-300 bg-red-50 text-red-800",
-            )}
-          >
-            Please complete: {missingFields.map(prettyStepFieldName).join(", ")}.
-          </div>
-        ) : null}
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={status === "submitting"}
+          className="mt-4 flex min-h-[52px] w-full items-center justify-center rounded-lg bg-[#1e4642] text-lg font-medium text-white transition-colors hover:bg-[#153532] disabled:opacity-60"
+        >
+          {status === "submitting" ? "Submitting…" : "Submit"}
+        </button>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-          {stepIndex > 0 ? (
-            <button
-              type="button"
-              onClick={goBack}
-              className={clsx(
-                btnClass,
-                glass
-                  ? "border border-white/40 bg-white/10 text-white hover:bg-white/20"
-                  : "border border-coastal-line bg-white text-coastal-ink",
-              )}
-            >
-              Back
-            </button>
-          ) : (
-            <span />
-          )}
-          {stepIndex < 2 ? (
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={!stepComplete}
-              aria-disabled={!stepComplete}
-              title={stepComplete ? undefined : "Complete the fields above to continue"}
-              className={clsx(
-                btnClass,
-                "ml-auto text-white",
-                !stepComplete && "cursor-not-allowed opacity-50",
-              )}
-              style={{ backgroundColor: glass ? "var(--color-accent-warm)" : "var(--color-accent)" }}
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={status === "submitting"}
-              className={clsx(btnClass, "ml-auto text-white")}
-              style={{ backgroundColor: glass ? "var(--color-accent-warm)" : "var(--color-accent)" }}
-            >
-              {status === "submitting" ? "Sending…" : "Send to Joel"}
-            </button>
-          )}
-        </div>
+        {/* Privacy / Terms */}
+        <p className="text-center text-sm text-gray-600">
+          <a href="/privacy" className="underline underline-offset-2 hover:text-gray-900">Privacy Policy</a>
+          <span className="mx-2">|</span>
+          <a href="/terms" className="underline underline-offset-2 hover:text-gray-900">Terms of Service</a>
+        </p>
       </form>
     </div>
   );

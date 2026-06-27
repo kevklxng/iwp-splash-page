@@ -1,26 +1,22 @@
 import Image from "next/image";
-import { clsx } from "clsx";
 
-const SRC = "/SVGtch.svg";
-const WIDTH = 362;
-const HEIGHT = 100;
+const SRC = "/iwp-logo.svg";
+const WIDTH = 400;
+const HEIGHT = 120;
 
 type SplashLogoProps = {
   variant?: "header" | "hero";
   priority?: boolean;
-  /** `light` inverts the SVG for use on dark / photographic backgrounds */
   tone?: "dark" | "light";
 };
 
-export function SplashLogo({ variant = "hero", priority = false, tone = "dark" }: SplashLogoProps) {
-  const invert = tone === "light";
-
+export function SplashLogo({ variant = "hero", priority = false }: SplashLogoProps) {
   if (variant === "header") {
     return (
-      <span className={clsx("inline-block", invert && "[&_img]:brightness-0 [&_img]:invert")}>
+      <span className="inline-block">
         <Image
           src={SRC}
-          alt="Templeton Custom Homes"
+          alt="IWP — Itibari, Waynne & Partners"
           width={WIDTH}
           height={HEIGHT}
           className="h-10 w-auto md:h-12"
@@ -31,10 +27,10 @@ export function SplashLogo({ variant = "hero", priority = false, tone = "dark" }
   }
 
   return (
-    <span className={clsx("inline-block max-w-[min(100%,560px)]", invert && "[&_img]:brightness-0 [&_img]:invert")}>
+    <span className="inline-block max-w-[min(100%,480px)]">
       <Image
         src={SRC}
-        alt="Templeton Custom Homes"
+        alt="IWP — Itibari, Waynne & Partners"
         width={WIDTH}
         height={HEIGHT}
         className="h-auto w-full"

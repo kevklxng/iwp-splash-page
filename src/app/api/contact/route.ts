@@ -9,7 +9,6 @@ import { sanityClient } from "../../../sanity/client";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-/** In-memory rate limit (resets on cold start). */
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const RATE_MAX_PER_WINDOW = 5;
 const submissionTimestampsByIp = new Map<string, number[]>();
@@ -74,15 +73,17 @@ export async function POST(request: Request) {
   const row: Record<string, string | undefined> = {
     submittedAt,
     sourcePage,
-    name: data.name,
+    describesYou: data.describesYou,
     email: data.email,
+    fullName: data.fullName,
+    linkedIn: data.linkedIn,
     phone: data.phone,
-    projectType: data.projectType,
-    budgetRange: data.budgetRange,
-    timeline: data.timeline,
-    drawingsStatus: data.drawingsStatus,
-    projectLocation: data.projectLocation,
-    message: data.message,
+    referredBy: data.referredBy,
+    investmentRange: data.investmentRange,
+    industry: data.industry,
+    service: data.service,
+    financingParticipation: data.financingParticipation,
+    lendingAffiliation: data.lendingAffiliation,
   };
 
   let newId: number;
@@ -91,28 +92,32 @@ export async function POST(request: Request) {
       INSERT INTO contact_submissions (
         submitted_at,
         source_page,
-        name,
+        describes_you,
         email,
+        full_name,
+        linkedin,
         phone,
-        project_type,
-        budget_range,
-        timeline,
-        drawings_status,
-        project_location,
-        message
+        referred_by,
+        investment_range,
+        industry,
+        service,
+        financing_participation,
+        lending_affiliation
       )
       VALUES (
         ${submittedAt},
         ${sourcePage},
-        ${data.name},
+        ${data.describesYou},
         ${data.email},
+        ${data.fullName},
+        ${data.linkedIn},
         ${data.phone},
-        ${data.projectType},
-        ${data.budgetRange},
-        ${data.timeline},
-        ${data.drawingsStatus},
-        ${data.projectLocation},
-        ${data.message ?? null}
+        ${data.referredBy},
+        ${data.investmentRange},
+        ${data.industry},
+        ${data.service},
+        ${data.financingParticipation},
+        ${data.lendingAffiliation}
       )
       RETURNING id
     `;
@@ -130,15 +135,17 @@ export async function POST(request: Request) {
     `Source page: ${sourcePage}`,
     `Submitted at: ${submittedAt}`,
     `Submission id: ${newId}`,
-    `Name: ${data.name}`,
+    `Describes you: ${data.describesYou}`,
+    `Full name: ${data.fullName}`,
     `Email: ${data.email}`,
+    `LinkedIn: ${data.linkedIn}`,
     `Phone: ${data.phone}`,
-    `Project type: ${data.projectType}`,
-    `Budget range: ${data.budgetRange}`,
-    `Timeline: ${data.timeline}`,
-    `Drawings status: ${data.drawingsStatus}`,
-    `Project location: ${data.projectLocation}`,
-    `Message: ${data.message || "(none)"}`,
+    `Referred by: ${data.referredBy}`,
+    `Investment range: ${data.investmentRange}`,
+    `Industry: ${data.industry}`,
+    `Service: ${data.service}`,
+    `Financing participation: ${data.financingParticipation}`,
+    `Lending affiliation: ${data.lendingAffiliation}`,
   ].join("\n");
 
   const emailAttempted = Boolean(resend && process.env.CONTACT_TO_EMAIL);
@@ -147,9 +154,9 @@ export async function POST(request: Request) {
   if (emailAttempted && resend && process.env.CONTACT_TO_EMAIL) {
     try {
       await resend.emails.send({
-        from: process.env.CONTACT_FROM_EMAIL || "TCH Website <no-reply@templetoncustomhomes.com>",
+        from: process.env.CONTACT_FROM_EMAIL || "IWP Website <no-reply@iwp.fund>",
         to: process.env.CONTACT_TO_EMAIL,
-        subject: `New project inquiry: ${data.name}`,
+        subject: `New inquiry: ${data.fullName}`,
         text: emailBody,
       });
       emailOk = true;
@@ -176,15 +183,17 @@ export async function POST(request: Request) {
     try {
       await sanityClient.withConfig({ token: process.env.SANITY_API_WRITE_TOKEN, useCdn: false }).create({
         _type: "formSubmission",
-        name: data.name,
+        describesYou: data.describesYou,
+        fullName: data.fullName,
         email: data.email,
+        linkedIn: data.linkedIn,
         phone: data.phone,
-        projectType: data.projectType,
-        budgetRange: data.budgetRange,
-        timeline: data.timeline,
-        drawingsStatus: data.drawingsStatus,
-        projectLocation: data.projectLocation,
-        message: data.message,
+        referredBy: data.referredBy,
+        investmentRange: data.investmentRange,
+        industry: data.industry,
+        service: data.service,
+        financingParticipation: data.financingParticipation,
+        lendingAffiliation: data.lendingAffiliation,
         sourcePage,
         submittedAt,
       });

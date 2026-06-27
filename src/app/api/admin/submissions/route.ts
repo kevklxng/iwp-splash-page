@@ -43,15 +43,17 @@ export async function GET(request: Request) {
     id: number;
     submitted_at: Date;
     source_page: string | null;
-    name: string;
+    describes_you: string | null;
     email: string;
+    full_name: string;
+    linkedin: string | null;
     phone: string | null;
-    project_type: string | null;
-    budget_range: string | null;
-    timeline: string | null;
-    drawings_status: string | null;
-    project_location: string | null;
-    message: string | null;
+    referred_by: string | null;
+    investment_range: string | null;
+    industry: string | null;
+    service: string | null;
+    financing_participation: string | null;
+    lending_affiliation: string | null;
     is_read: boolean;
     created_at: Date;
   };
@@ -65,20 +67,9 @@ export async function GET(request: Request) {
   const listResult = unreadOnly
     ? await sql<Row>`
         SELECT
-          id,
-          submitted_at,
-          source_page,
-          name,
-          email,
-          phone,
-          project_type,
-          budget_range,
-          timeline,
-          drawings_status,
-          project_location,
-          message,
-          is_read,
-          created_at
+          id, submitted_at, source_page, describes_you, email, full_name,
+          linkedin, phone, referred_by, investment_range, industry, service,
+          financing_participation, lending_affiliation, is_read, created_at
         FROM contact_submissions
         WHERE is_read = FALSE
         ORDER BY submitted_at DESC
@@ -87,20 +78,9 @@ export async function GET(request: Request) {
       `
     : await sql<Row>`
         SELECT
-          id,
-          submitted_at,
-          source_page,
-          name,
-          email,
-          phone,
-          project_type,
-          budget_range,
-          timeline,
-          drawings_status,
-          project_location,
-          message,
-          is_read,
-          created_at
+          id, submitted_at, source_page, describes_you, email, full_name,
+          linkedin, phone, referred_by, investment_range, industry, service,
+          financing_participation, lending_affiliation, is_read, created_at
         FROM contact_submissions
         ORDER BY submitted_at DESC
         LIMIT ${limit}
@@ -111,15 +91,17 @@ export async function GET(request: Request) {
     id: r.id,
     submittedAt: r.submitted_at instanceof Date ? r.submitted_at.toISOString() : String(r.submitted_at),
     sourcePage: r.source_page,
-    name: r.name,
+    describesYou: r.describes_you,
+    fullName: r.full_name,
     email: r.email,
+    linkedIn: r.linkedin,
     phone: r.phone,
-    projectType: r.project_type,
-    budgetRange: r.budget_range,
-    timeline: r.timeline,
-    drawingsStatus: r.drawings_status,
-    projectLocation: r.project_location,
-    message: r.message,
+    referredBy: r.referred_by,
+    investmentRange: r.investment_range,
+    industry: r.industry,
+    service: r.service,
+    financingParticipation: r.financing_participation,
+    lendingAffiliation: r.lending_affiliation,
     isRead: r.is_read,
     createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at),
   }));
