@@ -45,10 +45,10 @@ export const CustomSelect = forwardRef<HTMLButtonElement, CustomSelectProps>(fun
   const selectedValue = value && value.length > 0 ? value : null;
 
   const triggerClass = cn(
-    "flex min-h-[48px] w-full items-center justify-between gap-2 rounded-lg px-4 py-3 text-base text-left",
+    "flex min-h-[48px] w-full items-center justify-between gap-2 rounded-md px-4 py-3 text-base text-left",
     glass
-      ? "border border-white/15 bg-white/[0.06] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e4642]"
-      : "border border-gray-300 bg-white text-[#1e4642] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e4642]",
+      ? "border border-white/15 bg-white/[0.06] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e4642]/20"
+      : "rounded-md border border-gray-200 bg-white text-[#1e4642] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e4642]/20 focus-visible:ring-offset-0",
     error && (glass ? "border-red-400/60 bg-red-500/10" : "border-red-400 bg-red-50"),
     disabled && "cursor-not-allowed opacity-60",
     className,
@@ -58,7 +58,7 @@ export const CustomSelect = forwardRef<HTMLButtonElement, CustomSelectProps>(fun
     "z-50 max-h-60 overflow-auto rounded-lg border shadow-lg outline-none",
     glass
       ? "border-white/10 bg-[#0a0a0a] text-white"
-      : "border-gray-300 bg-white text-[#1e4642]",
+      : "rounded-md border-gray-200 bg-white text-[#1e4642] shadow-md",
   );
 
   const itemClass = cn(

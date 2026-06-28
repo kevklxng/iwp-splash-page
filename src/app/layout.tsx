@@ -56,8 +56,8 @@ export const metadata: Metadata = {
     images: [DEFAULT_OG_IMAGE.url],
   },
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/favicon.png", type: "image/png" }],
   },
 };
 
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const gaId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
-      <body>
+      <body className={isSplashMode() ? "bg-white text-gray-900" : undefined}>
         <JsonLd data={globalSchema} />
         {gaId ? (
           <>

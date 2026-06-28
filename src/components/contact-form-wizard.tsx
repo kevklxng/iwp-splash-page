@@ -67,13 +67,17 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
   const labelClass = "mb-1.5 block text-sm font-semibold text-gray-800";
   const reqClass = "text-red-500";
   const inputClass =
-    "min-h-[48px] w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e4642]";
+    "min-h-[48px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e4642]/20 focus-visible:ring-offset-0";
   const invalidClass = "border-red-400 bg-red-50";
   const errClass = "mt-1 text-sm text-red-600";
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center shadow-lg lg:p-10" role="status" aria-live="polite">
+      <div
+        className="rounded-xl border border-gray-200 bg-white p-8 text-center text-gray-950 shadow-sm lg:p-10"
+        role="status"
+        aria-live="polite"
+      >
         <p className="text-lg font-medium text-gray-900">
           Thank you for your interest. We&apos;ll be in touch soon.
         </p>
@@ -82,7 +86,7 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
   }
 
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-lg lg:p-10">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 text-gray-950 shadow-sm lg:p-8">
       <form id={formId} className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input type="text" className="hidden" tabIndex={-1} autoComplete="off" {...register("company")} />
 

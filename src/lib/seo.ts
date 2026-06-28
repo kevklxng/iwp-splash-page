@@ -103,7 +103,7 @@ export function buildOrganizationSchema() {
     "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
-    logo: absoluteUrl("/iwp-logo.svg"),
+    logo: absoluteUrl("/iwp-logo-subhead.png"),
     email: BUSINESS_CONTACT.email,
     telephone: BUSINESS_CONTACT.phone,
     sameAs: ORGANIZATION_SAME_AS,

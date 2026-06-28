@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-const SRC = "/iwp-logo.svg";
-const WIDTH = 400;
-const HEIGHT = 120;
+const SRC = "/iwp-logo-subhead.png";
+const WIDTH = 500;
+const HEIGHT = 500;
 
 type SplashLogoProps = {
   variant?: "header" | "hero";
@@ -13,29 +13,26 @@ type SplashLogoProps = {
 export function SplashLogo({ variant = "hero", priority = false }: SplashLogoProps) {
   if (variant === "header") {
     return (
-      <span className="inline-block">
-        <Image
-          src={SRC}
-          alt="IWP — Itibari, Waynne & Partners"
-          width={WIDTH}
-          height={HEIGHT}
-          className="h-10 w-auto md:h-12"
-          priority={priority}
-        />
-      </span>
+      <Image
+        src={SRC}
+        alt="IWP — Itibari, Waynne & Partners — Financing for the Entertainment Industry"
+        width={WIDTH}
+        height={HEIGHT}
+        className="h-8 w-auto md:h-10"
+        priority={priority}
+      />
     );
   }
 
   return (
-    <span className="inline-block max-w-[min(100%,480px)]">
-      <Image
-        src={SRC}
-        alt="IWP — Itibari, Waynne & Partners"
-        width={WIDTH}
-        height={HEIGHT}
-        className="h-auto w-full"
-        priority={priority}
-      />
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={SRC}
+      alt="IWP — Itibari, Waynne & Partners — Financing for the Entertainment Industry"
+      width={WIDTH}
+      height={HEIGHT}
+      className="mx-auto h-auto w-full max-w-[560px]"
+      {...(priority ? { fetchPriority: "high" as const } : {})}
+    />
   );
 }
