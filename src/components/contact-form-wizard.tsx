@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import { useEffect, useId, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { MultiSelectChips } from "@/components/ui/multi-select-chips";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   contactSchema,
@@ -20,9 +21,10 @@ import {
 
 export type ContactFormWizardProps = {
   appearance?: "default" | "glass";
+  onExpandedChange?: (expanded: boolean) => void;
 };
 
-export function ContactFormWizard({ appearance = "default" }: ContactFormWizardProps) {
+export function ContactFormWizard({ appearance = "default", onExpandedChange }: ContactFormWizardProps) {
   const formId = useId();
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
@@ -44,7 +46,7 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
       phone: "",
       referredBy: "",
       investmentRange: undefined,
-      industry: undefined,
+      industry: [],
       service: "",
       financingParticipation: undefined,
       lendingAffiliation: undefined,
@@ -61,10 +63,17 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
   );
 
   useEffect(() => {
+    onExpandedChange?.(Boolean(role) || status === "success");
+  }, [role, status, onExpandedChange]);
+
+  useEffect(() => {
     if (!role) return;
 
     for (const field of getHiddenFieldsForRole(role)) {
-      setValue(field, undefined, { shouldValidate: false, shouldDirty: false });
+      setValue(field, field === "industry" ? [] : undefined, {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
       clearErrors(field);
     }
   }, [role, setValue, clearErrors]);
@@ -286,14 +295,16 @@ export function ContactFormWizard({ appearance = "default" }: ContactFormWizardP
                 <Controller
                   name="industry"
                   control={control}
-                  render={({ field }) => (
-                    <CustomSelect
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <MultiSelectChips
                       id={`${formId}-industry`}
                       options={INDUSTRY_OPTIONS}
-                      placeholder="Select an option"
+                      placeholder="Select options"
+                      value={value ?? []}
+                      onChange={onChange}
+                      onBlur={onBlur}
                       error={!!errors.industry}
                       aria-invalid={!!errors.industry}
-                      {...field}
                     />
                   )}
                 />

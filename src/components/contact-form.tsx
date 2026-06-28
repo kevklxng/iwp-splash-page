@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { MultiSelectChips } from "@/components/ui/multi-select-chips";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   contactSchema,
@@ -66,7 +67,28 @@ export function ContactForm() {
         <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("referredBy")} aria-invalid={!!errors.referredBy} />
       </Field>
       <SelectField label="What investment range are you comfortable deploying?" name="investmentRange" control={control} error={errors.investmentRange?.message} options={INVESTMENT_RANGE_OPTIONS} />
-      <SelectField label="What industry do you provide services for?" name="industry" control={control} error={errors.industry?.message} options={INDUSTRY_OPTIONS} />
+      <div>
+        <label htmlFor="what-industry-do-you-provide-services-for?" className="mb-2 block text-sm uppercase tracking-[0.08em]">
+          What industry do you provide services for? *
+        </label>
+        <Controller
+          name="industry"
+          control={control}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <MultiSelectChips
+              id="what-industry-do-you-provide-services-for?"
+              options={INDUSTRY_OPTIONS}
+              placeholder="Select options"
+              value={value ?? []}
+              onChange={onChange}
+              onBlur={onBlur}
+              error={!!errors.industry}
+              aria-invalid={!!errors.industry}
+            />
+          )}
+        />
+        {errors.industry ? <p className="mt-1 text-sm text-red-700">{errors.industry.message}</p> : null}
+      </div>
       <Field label="What service do you provide?" error={errors.service?.message}>
         <input className="w-full border border-coastal-line bg-white px-4 py-3" {...register("service")} aria-invalid={!!errors.service} />
       </Field>
@@ -101,7 +123,7 @@ function SelectField({
   options,
 }: {
   label: string;
-  name: keyof ContactSchema;
+  name: Exclude<keyof ContactSchema, "industry">;
   control: ReturnType<typeof useForm<ContactSchema>>["control"];
   error?: string;
   options: readonly string[];

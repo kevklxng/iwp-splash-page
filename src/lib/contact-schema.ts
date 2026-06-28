@@ -94,7 +94,7 @@ const contactSchemaBase = z.object({
     [...INVESTMENT_RANGE_OPTIONS],
     "Please select an investment range.",
   ),
-  industry: optionalEnumField([...INDUSTRY_OPTIONS], "Please select an industry."),
+  industry: z.array(z.enum([...INDUSTRY_OPTIONS])).optional(),
   service: z.string().optional(),
   financingParticipation: optionalEnumField(
     [...FINANCING_PARTICIPATION_OPTIONS],
@@ -153,7 +153,12 @@ export const contactSchema = contactSchemaBase.superRefine((data, ctx) => {
 
   for (const field of requiredFields) {
     const value = data[field];
-    if (value === undefined || value === "") {
+    const isEmpty =
+      field === "industry"
+        ? !Array.isArray(value) || value.length === 0
+        : value === undefined || value === "";
+
+    if (isEmpty) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: ROLE_FIELD_MESSAGES[field],

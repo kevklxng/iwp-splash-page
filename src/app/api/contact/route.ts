@@ -37,6 +37,11 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
+function formatIndustry(industry: string[] | undefined): string | undefined {
+  if (!industry?.length) return undefined;
+  return industry.join(", ");
+}
+
 export async function POST(request: Request) {
   let payload: unknown;
   try {
@@ -69,6 +74,7 @@ export async function POST(request: Request) {
 
   const sourcePage = data.sourcePage?.trim() || "/";
   const submittedAt = new Date().toISOString();
+  const industry = formatIndustry(data.industry);
 
   const row: Record<string, string | undefined> = {
     submittedAt,
@@ -80,7 +86,7 @@ export async function POST(request: Request) {
     phone: data.phone,
     referredBy: data.referredBy,
     investmentRange: data.investmentRange,
-    industry: data.industry,
+    industry,
     service: data.service,
     financingParticipation: data.financingParticipation,
     lendingAffiliation: data.lendingAffiliation,
@@ -114,7 +120,7 @@ export async function POST(request: Request) {
         ${data.phone},
         ${data.referredBy},
         ${data.investmentRange},
-        ${data.industry},
+        ${industry},
         ${data.service},
         ${data.financingParticipation},
         ${data.lendingAffiliation}
@@ -142,7 +148,7 @@ export async function POST(request: Request) {
     `Phone: ${data.phone}`,
     `Referred by: ${data.referredBy}`,
     `Investment range: ${data.investmentRange}`,
-    `Industry: ${data.industry}`,
+    `Industry: ${industry ?? ""}`,
     `Service: ${data.service}`,
     `Financing participation: ${data.financingParticipation}`,
     `Lending affiliation: ${data.lendingAffiliation}`,
@@ -190,7 +196,7 @@ export async function POST(request: Request) {
         phone: data.phone,
         referredBy: data.referredBy,
         investmentRange: data.investmentRange,
-        industry: data.industry,
+        industry,
         service: data.service,
         financingParticipation: data.financingParticipation,
         lendingAffiliation: data.lendingAffiliation,
