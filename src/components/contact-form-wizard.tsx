@@ -411,17 +411,6 @@ export function ContactFormWizard({ appearance = "default", onExpandedChange }: 
         >
           {status === "submitting" ? "Submitting…" : "Submit"}
         </button>
-
-        {/* Privacy / Terms */}
-        <p className="text-center text-sm text-gray-600">
-          <a href="/privacy" className="underline underline-offset-2 hover:text-gray-900">
-            Privacy Policy
-          </a>
-          <span className="mx-2">|</span>
-          <a href="/terms" className="underline underline-offset-2 hover:text-gray-900">
-            Terms of Service
-          </a>
-        </p>
       </form>
     </div>
   );
