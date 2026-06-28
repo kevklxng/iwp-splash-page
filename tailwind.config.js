@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
+      screens: {
+        splash: "740px",
+      },
       fontFamily: {
         sans: ["var(--font-space-grotesk)", "var(--font-inter)", "system-ui", "sans-serif"],
       },

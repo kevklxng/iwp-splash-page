@@ -1,18 +1,9 @@
-import Link from "next/link";
-import { SplashLogo } from "@/components/splash-logo";
 import { LINKEDIN_URL } from "@/lib/splash";
 
 export function SplashSiteHeader() {
   return (
     <header className="sticky top-0 z-50 bg-transparent">
-      <div className="mx-auto flex w-full max-w-7xl items-center px-6 py-5 lg:px-8">
-        <Link
-          href="/"
-          className="inline-flex items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1e4642]"
-        >
-          <SplashLogo variant="header" priority tone="light" />
-        </Link>
-      </div>
+      <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-8" />
     </header>
   );
 }

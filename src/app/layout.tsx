@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { SplashSiteHeader } from "@/components/splash-chrome";
 import { isSplashMode } from "@/lib/splash";
 
 /** Read splash flag at request time so Vercel env changes apply without a rebuild. */
@@ -67,7 +66,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const gaId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
-      <body className={isSplashMode() ? "bg-white text-gray-900" : undefined}>
+      <body
+        className={
+          isSplashMode()
+            ? "flex min-h-dvh flex-col bg-white text-gray-900 splash:h-dvh splash:overflow-hidden"
+            : undefined
+        }
+      >
         <JsonLd data={globalSchema} />
         {gaId ? (
           <>
@@ -80,8 +85,8 @@ gtag('config', '${gaId}');`}
             </Script>
           </>
         ) : null}
-        {isSplashMode() ? <SplashSiteHeader /> : <SiteHeader />}
-        <main>{children}</main>
+        {isSplashMode() ? null : <SiteHeader />}
+        <main className={isSplashMode() ? "min-h-0 flex-1" : undefined}>{children}</main>
         {isSplashMode() ? null : (
           <Suspense
             fallback={
