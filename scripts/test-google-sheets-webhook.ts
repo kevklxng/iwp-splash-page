@@ -39,17 +39,20 @@ async function main() {
   }
 
   const row = {
+    submissionId: "test",
     submittedAt: new Date().toISOString(),
     sourcePage: "/scripts/test-google-sheets-webhook",
-    name: "Sheets webhook test",
+    describesYou: "I am a Service Provider",
     email: "test@example.com",
+    fullName: "Sheets webhook test",
+    linkedIn: "https://linkedin.com/in/test",
     phone: "555-0199",
-    projectType: "ADU",
-    budgetRange: "$500K-$1M",
-    timeline: "ASAP",
-    drawingsStatus: "Just exploring ideas",
-    projectLocation: "Other",
-    message: "npm run test:sheets — safe to delete this row.",
+    referredBy: "npm run test:sheets",
+    investmentRange: "",
+    financingParticipation: "",
+    lendingAffiliation: "",
+    industry: "Entertainment, Music",
+    service: "Production — safe to delete this row.",
   };
 
   const res = await fetch(url, {

@@ -19,7 +19,7 @@ Vercel does **not** store form data; these integrations do.
    ```bash
    curl -sS -X POST http://localhost:3000/api/contact \
      -H "Content-Type: application/json" \
-     -d '{"name":"Test","email":"you@example.com","phone":"555-0100","projectType":"ADU","budgetRange":"$500K-$1M","timeline":"ASAP","drawingsStatus":"Just exploring ideas","projectLocation":"Other"}'
+     -d '{"describesYou":"I am a Storyteller","email":"you@example.com","fullName":"Test User","linkedIn":"https://linkedin.com/in/test","referredBy":"Friend","sourcePage":"/"}'
    ```
 
    Expect `{"ok":true}` (and optional `warnings` if another channel failed). Check the inbox for `CONTACT_TO_EMAIL`.
