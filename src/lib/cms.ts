@@ -114,7 +114,7 @@ const FALLBACK_PROCESS = {
 
 const FALLBACK_CONTACT = {
   intro: "Let's talk specifics. Joel reads every inquiry and responds within one business day.",
-  contactEmail: "joel@templetoncustomhomes.com",
+  contactEmail: "joel@iwp.fund",
   phone: "(949) 933-2459",
   licenseBonding: plainParagraphBlocks("[PLACEHOLDER: License and bonding information pending confirmation.]"),
   serviceArea: plainParagraphBlocks(

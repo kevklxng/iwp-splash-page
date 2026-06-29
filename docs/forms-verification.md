@@ -12,7 +12,7 @@ Vercel does **not** store form data; these integrations do.
 
 ## 1. Resend (email notification)
 
-1. In [Resend → Domains](https://resend.com/domains), verify **`templetoncustomhomes.com`** (or whichever domain you use in `CONTACT_FROM_EMAIL`).
+1. In [Resend → Domains](https://resend.com/domains), verify **`iwp.fund`** (or whichever domain you use in `CONTACT_FROM_EMAIL`).
 2. Ensure `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL` are set locally (`.env.local`) and on Vercel (Preview + Production).
 3. **Smoke test (local)** — with `npm run dev`, submit the contact form or run:
 
