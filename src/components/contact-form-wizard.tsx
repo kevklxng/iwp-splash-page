@@ -19,6 +19,8 @@ import {
   type DescribesYouOption,
 } from "@/lib/contact-schema";
 
+const DEFAULT_ERROR_MESSAGE = "Something went wrong while sending your inquiry. Please try again.";
+
 export type ContactFormWizardProps = {
   appearance?: "default" | "glass";
   onExpandedChange?: (expanded: boolean) => void;
@@ -27,6 +29,7 @@ export type ContactFormWizardProps = {
 export function ContactFormWizard({ appearance = "default", onExpandedChange }: ContactFormWizardProps) {
   const formId = useId();
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>(DEFAULT_ERROR_MESSAGE);
 
   const {
     register,
@@ -82,15 +85,35 @@ export function ContactFormWizard({ appearance = "default", onExpandedChange }: 
     setStatus("submitting");
     const sourcePage = typeof window !== "undefined" ? window.location.pathname : "/";
     const payload = { ...values, sourcePage };
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
+
+    let response: Response;
+    try {
+      response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      setErrorMessage(
+        "We couldn't reach our servers. Please check your internet connection and try again.",
+      );
       setStatus("error");
       return;
     }
+
+    if (!response.ok) {
+      let message = DEFAULT_ERROR_MESSAGE;
+      try {
+        const body = (await response.json()) as { error?: string };
+        if (body?.error) message = body.error;
+      } catch {
+        // response had no JSON body; fall back to default message
+      }
+      setErrorMessage(message);
+      setStatus("error");
+      return;
+    }
+
     setStatus("success");
   }
 
@@ -398,8 +421,8 @@ export function ContactFormWizard({ appearance = "default", onExpandedChange }: 
         ) : null}
 
         {status === "error" ? (
-          <p className="text-sm text-red-600" role="alert">
-            Something went wrong. Please try again.
+          <p className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600" role="alert">
+            {errorMessage}
           </p>
         ) : null}
 

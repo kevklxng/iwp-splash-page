@@ -10,8 +10,9 @@ if (!process.env.POSTGRES_URL) {
 }
 
 async function main() {
+  await sql`DROP TABLE IF EXISTS contact_submissions;`;
   await sql`
-    CREATE TABLE IF NOT EXISTS contact_submissions (
+    CREATE TABLE contact_submissions (
       id SERIAL PRIMARY KEY,
       submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       source_page VARCHAR(255),
