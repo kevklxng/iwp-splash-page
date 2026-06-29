@@ -15,8 +15,11 @@ import {
   type ContactSchema,
 } from "@/lib/contact-schema";
 
+const DEFAULT_ERROR_MESSAGE = "Something went wrong while sending your inquiry. Please try again.";
+
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>(DEFAULT_ERROR_MESSAGE);
   const {
     register,
     control,
@@ -30,15 +33,35 @@ export function ContactForm() {
   async function onSubmit(values: ContactSchema) {
     setStatus("submitting");
     const sourcePage = typeof window !== "undefined" ? window.location.pathname : "/";
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, sourcePage }),
-    });
-    if (!response.ok) {
+
+    let response: Response;
+    try {
+      response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, sourcePage }),
+      });
+    } catch {
+      setErrorMessage(
+        "We couldn't reach our servers. Please check your internet connection and try again.",
+      );
       setStatus("error");
       return;
     }
+
+    if (!response.ok) {
+      let message = DEFAULT_ERROR_MESSAGE;
+      try {
+        const body = (await response.json()) as { error?: string };
+        if (body?.error) message = body.error;
+      } catch {
+        // response had no JSON body; fall back to default message
+      }
+      setErrorMessage(message);
+      setStatus("error");
+      return;
+    }
+
     setStatus("success");
     reset();
   }
@@ -94,7 +117,11 @@ export function ContactForm() {
       </Field>
       <SelectField label="How do you typically participate in financing opportunities?" name="financingParticipation" control={control} error={errors.financingParticipation?.message} options={FINANCING_PARTICIPATION_OPTIONS} />
       <SelectField label="Are you affiliated with a certified lending institution or government-backed program?" name="lendingAffiliation" control={control} error={errors.lendingAffiliation?.message} options={LENDING_AFFILIATION_OPTIONS} />
-      {status === "error" ? <p className="text-sm text-red-700">Submission failed. Please try again.</p> : null}
+      {status === "error" ? (
+        <p role="alert" className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </p>
+      ) : null}
       <button type="submit" disabled={status === "submitting"} className="rounded px-5 py-3 text-white disabled:opacity-70" style={{ backgroundColor: "var(--color-accent)" }}>
         {status === "submitting" ? "Submitting..." : "Submit"}
       </button>

@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import { after } from "next/server";
 import { sql } from "@vercel/postgres";
 import { Resend } from "resend";
+import { z } from "zod";
 import { contactSchema } from "@/lib/contact-schema";
 import { isSheetsConfigured, postRowToSheet } from "@/lib/google-sheets";
-import { hasSanity } from "../../../sanity/env";
-import { sanityClient } from "../../../sanity/client";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -42,18 +41,63 @@ function formatIndustry(industry: string[] | undefined): string | undefined {
   return industry.join(", ");
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  describesYou: "Which best describes you",
+  email: "Email",
+  fullName: "Full name",
+  linkedIn: "LinkedIn URL",
+  phone: "Phone",
+  referredBy: "Who referred you",
+  investmentRange: "Investment range",
+  industry: "Industry",
+  service: "Service",
+  financingParticipation: "Financing participation",
+  lendingAffiliation: "Lending affiliation",
+};
+
+function describeValidationError(parsed: z.SafeParseError<unknown>): string {
+  const issues = parsed.error.issues;
+  const fieldNames = Array.from(
+    new Set(
+      issues
+        .map((issue) => issue.path[0])
+        .filter((p): p is string => typeof p === "string")
+        .map((p) => FIELD_LABELS[p] ?? p),
+    ),
+  );
+
+  if (fieldNames.length === 0) {
+    return "Some of the information you entered isn't valid. Please review the form and try again.";
+  }
+
+  const list =
+    fieldNames.length === 1
+      ? fieldNames[0]
+      : `${fieldNames.slice(0, -1).join(", ")} and ${fieldNames[fieldNames.length - 1]}`;
+
+  return `Please check the following ${
+    fieldNames.length === 1 ? "field" : "fields"
+  } and try again: ${list}.`;
+}
+
 export async function POST(request: Request) {
   let payload: unknown;
   try {
     payload = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json(
+      { error: "We couldn't read your submission. Please refresh the page and try again." },
+      { status: 400 },
+    );
   }
 
   const parsed = contactSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid form fields." }, { status: 400 });
+    return NextResponse.json(
+      { error: describeValidationError(parsed) },
+      { status: 400 },
+    );
   }
 
   const data = parsed.data;
@@ -64,12 +108,24 @@ export async function POST(request: Request) {
 
   const clientIp = getClientIp(request);
   if (isRateLimited(clientIp)) {
-    return NextResponse.json({ error: "Too many submissions. Please try again later." }, { status: 429 });
+    return NextResponse.json(
+      {
+        error:
+          "You've reached the limit of 5 submissions per hour. Please wait a little while before trying again, or email us directly.",
+      },
+      { status: 429 },
+    );
   }
 
   if (!process.env.POSTGRES_URL) {
     console.error("[api/contact] POSTGRES_URL is not set.");
-    return NextResponse.json({ error: "Server misconfiguration." }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          "Our server isn't configured to receive submissions right now. Please email us directly so we don't miss you.",
+      },
+      { status: 500 },
+    );
   }
 
   const sourcePage = data.sourcePage?.trim() || "/";
@@ -134,7 +190,13 @@ export async function POST(request: Request) {
     newId = id;
   } catch (error) {
     console.error("[api/contact] Postgres insert failed:", error);
-    return NextResponse.json({ error: "Failed to save inquiry." }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          "We couldn't save your inquiry due to a problem on our end. Please try again in a moment, or email us directly if it keeps happening.",
+      },
+      { status: 500 },
+    );
   }
 
   const emailBody = [
@@ -184,30 +246,6 @@ export async function POST(request: Request) {
 
   const warnings: string[] = [];
   if (emailAttempted && !emailOk) warnings.push("email_failed");
-
-  if (hasSanity && process.env.SANITY_API_WRITE_TOKEN) {
-    try {
-      await sanityClient.withConfig({ token: process.env.SANITY_API_WRITE_TOKEN, useCdn: false }).create({
-        _type: "formSubmission",
-        describesYou: data.describesYou,
-        fullName: data.fullName,
-        email: data.email,
-        linkedIn: data.linkedIn,
-        phone: data.phone,
-        referredBy: data.referredBy,
-        investmentRange: data.investmentRange,
-        industry,
-        service: data.service,
-        financingParticipation: data.financingParticipation,
-        lendingAffiliation: data.lendingAffiliation,
-        sourcePage,
-        submittedAt,
-      });
-    } catch (error) {
-      console.error("[api/contact] Sanity create failed:", error);
-      warnings.push("sanity_write_failed");
-    }
-  }
 
   const base = { ok: true as const, id: newId };
   return warnings.length > 0 ? NextResponse.json({ ...base, warnings }) : NextResponse.json(base);

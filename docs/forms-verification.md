@@ -4,9 +4,9 @@ This site posts inquiries to [`src/app/api/contact/route.ts`](../src/app/api/con
 
 1. **Email** — [Resend](https://resend.com) → `CONTACT_TO_EMAIL`
 2. **Spreadsheet** — Google Apps Script webhook → row on your Sheet ([setup](splash-apps-script.md))
-3. **CMS** — Sanity `formSubmission` document (requires `SANITY_API_WRITE_TOKEN` and valid Sanity project env)
+3. **Database** — Vercel Postgres (`contact_submissions` table)
 
-Vercel does **not** store form data; these integrations do.
+Form data is stored in Postgres and synced to Google Sheets; Resend sends notification email when configured.
 
 ---
 
@@ -51,9 +51,7 @@ In the Vercel project: **Settings → Environment Variables**, ensure **Preview*
 | `CONTACT_FROM_EMAIL` | Sender (domain must be verified in Resend) |
 | `GOOGLE_SHEETS_WEBHOOK_URL` | Apps Script web app URL |
 | `GOOGLE_SHEETS_WEBHOOK_SECRET` | Shared secret with the script |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Site + Studio |
-| `NEXT_PUBLIC_SANITY_DATASET` | e.g. `production` |
-| `SANITY_API_WRITE_TOKEN` | Optional; enables `formSubmission` documents in Sanity |
+| `POSTGRES_URL` | Vercel Postgres connection string |
 | `NEXT_PUBLIC_SPLASH_MODE` | Optional splash / route lockdown |
 
 CLI (if logged in): `npx vercel env ls`
@@ -64,15 +62,9 @@ After changing env vars, **redeploy** (or trigger a new deployment) so serverles
 
 ---
 
-## 4. Sanity Studio (`formSubmission`)
-
-If `SANITY_API_WRITE_TOKEN` is set and the token has **create** access to the dataset, submissions are stored as `formSubmission` documents. View them in **Sanity Studio** (`/studio` on the site, or embedded tool).
-
----
-
-## 5. Quick checklist
+## 4. Quick checklist
 
 - [ ] Resend domain verified; test email received
 - [ ] Sheet receives a row on test submit; Apps Script deployed as web app (Anyone)
-- [ ] Vercel env vars match `.env.example` / production needs; bogus JWT-named env removed
-- [ ] (Optional) New `formSubmission` appears in Studio after submit
+- [ ] Postgres `contact_submissions` row created on submit
+- [ ] Vercel env vars match `.env.example` / production needs

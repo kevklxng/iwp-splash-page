@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PortableText } from "@/components/portable-text";
-import { blocksToPlainText, getProjectBySlug, getProjectSlugs } from "@/lib/cms";
+import { getProjectBySlug, getProjectSlugs } from "@/lib/cms";
 import type { Metadata } from "next";
 import {
   buildBreadcrumbSchema,
@@ -24,8 +23,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
-  const plain =
-    project?.descriptionBlocks?.length ? blocksToPlainText(project.descriptionBlocks) : project?.description ?? "";
+  const plain = project?.description ?? "";
   const title = project ? `${project.title} - Templeton Custom Homes` : "Project - Templeton Custom Homes";
   const description =
     plain.slice(0, 155) ||
@@ -52,8 +50,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const galleryImages =
     project.gallery?.filter(Boolean).length ? project.gallery! : [project.heroImage, project.heroImage].slice(0, 2);
 
-  const plainDescription =
-    project.descriptionBlocks?.length ? blocksToPlainText(project.descriptionBlocks) : project.description ?? "";
+  const plainDescription = project.description ?? "";
 
   const projectSchema = buildSchemaGraph(
     buildCreativeWorkSchema({
@@ -91,11 +88,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           {project.style ? ` - ${project.style}` : ""}
         </p>
         <div className="mt-8 text-lg leading-relaxed text-coastal-muted">
-          {project.descriptionBlocks?.length ? (
-            <PortableText value={project.descriptionBlocks} />
-          ) : (
-            <p>{project.description}</p>
-          )}
+          <p>{project.description}</p>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {galleryImages.map((src, i) => (
@@ -123,7 +116,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
         ) : (
           <div className="mt-10 border border-coastal-line p-5 text-sm text-coastal-muted">
-            [Optional project details can be added in Sanity: square footage, bedrooms, baths, timeline, credits.]
+            [Optional project details can be added: square footage, bedrooms, baths, timeline, credits.]
           </div>
         )}
         <Link href={`/work/${next}`} className="mt-10 inline-block underline">

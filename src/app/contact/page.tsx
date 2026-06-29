@@ -1,6 +1,5 @@
 import { ContactForm } from "@/components/contact-form";
-import { PortableText } from "@/components/portable-text";
-import { blocksToPlainText, CONTACT_AREA_SERVED, getContactPage } from "@/lib/cms";
+import { CONTACT_AREA_SERVED, getContactPage } from "@/lib/cms";
 import {
   buildBreadcrumbSchema,
   buildLocalBusinessSchema,
@@ -18,11 +17,8 @@ export const metadata = pageMetadata({
 export default async function ContactPage() {
   const contact = await getContactPage();
 
-  const licensePlain = blocksToPlainText(contact.licenseBonding ?? undefined);
-  const servicePlain = blocksToPlainText(contact.serviceArea ?? undefined);
-
   const description =
-    [licensePlain, servicePlain].filter(Boolean).join(" ").slice(0, 280) ||
+    [contact.licenseBonding, contact.serviceArea].filter(Boolean).join(" ").slice(0, 280) ||
     "Custom home builder serving coastal Orange County with transparent bidding and billing.";
 
   const localBusiness = buildLocalBusinessSchema({
@@ -63,12 +59,8 @@ export default async function ContactPage() {
             {contact.phone}
           </a>
         </p>
-        <div className="mt-4">
-          <PortableText value={contact.licenseBonding ?? undefined} />
-        </div>
-        <div className="mt-4">
-          <PortableText value={contact.serviceArea ?? undefined} />
-        </div>
+        <p className="mt-4">{contact.licenseBonding}</p>
+        <p className="mt-4">{contact.serviceArea}</p>
         <p className="mt-4 font-semibold text-coastal-ink">{contact.minimumProjectSizeNote}</p>
       </aside>
     </div>

@@ -8,7 +8,6 @@ export const SPLASH_DISALLOW_PATHS = [
   "/partners",
   "/contact",
   "/api/",
-  "/studio/",
 ] as const;
 
 export function isSplashMode(): boolean {

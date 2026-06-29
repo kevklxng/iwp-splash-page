@@ -1,5 +1,3 @@
-import type { PortableTextBlock } from "@portabletext/types";
-
 export type Project = {
   _id: string;
   title: string;
@@ -10,8 +8,6 @@ export type Project = {
   style?: string;
   heroImage: string;
   description: string;
-  /** Present when loaded from Sanity (Portable Text). */
-  descriptionBlocks?: PortableTextBlock[];
   gallery?: string[];
   details?: { label: string; value: string }[];
   featured?: boolean;

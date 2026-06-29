@@ -1,16 +1,17 @@
-# Templeton Custom Homes Website
+# IWP Splash Page
 
-Next.js App Router marketing site with embedded Sanity Studio and CMS-driven pages.
+Next.js App Router marketing site with splash-mode Learn More form.
 
 ## Stack
 
 - Next.js (App Router)
 - Tailwind CSS
-- Sanity CMS + embedded Studio at `/studio`
+- Vercel Postgres for form submissions
+- Google Sheets via Apps Script webhook
 - Resend for contact email delivery
 - GA4 (optional via env var)
 
-## Contact form (email, Sheets, Sanity)
+## Contact form (email, Sheets, Postgres)
 
 Submissions go to `POST /api/contact`. Setup, Resend domain checks, Google Apps Script / Sheets troubleshooting, and **Vercel environment variables** are documented in [`docs/forms-verification.md`](docs/forms-verification.md). To verify only the Sheet webhook (uses `.env.local`): `npm run test:sheets`.
 
@@ -20,36 +21,10 @@ Submissions go to `POST /api/contact`. Setup, Resend domain checks, Google Apps 
 2. Copy env: `cp .env.example .env.local`
 3. Dev server: `npm run dev`
 
-## Sanity setup
+## Static content
 
-1. Create a project at [sanity.io/manage](https://www.sanity.io/manage) (dataset name `production` is typical).
-2. In **Project settings → API**: add CORS origin `http://localhost:3000` (allow credentials). Add your production URL when you deploy.
-3. Create an **Editor** or **token with write access** for scripts and optional form submissions.
-4. Put these in `.env.local`:
+Marketing page copy and placeholder projects live in [`src/lib/cms.ts`](src/lib/cms.ts) and [`src/lib/content.ts`](src/lib/content.ts). Edit those files to update non-splash pages when `SPLASH_MODE` is disabled.
 
-```bash
-NEXT_PUBLIC_SANITY_PROJECT_ID=yourProjectId
-NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_WRITE_TOKEN=yourWriteToken
-```
+## Splash mode
 
-5. Seed starter documents (projects, partners, and all page singletons):
-
-```bash
-npm run seed:placeholders
-```
-
-6. Open **Studio**: [http://localhost:3000/studio](http://localhost:3000/studio) and edit content.
-
-### Studio desk layout
-
-Custom desk lives in [`sanity/deskStructure.ts`](sanity/deskStructure.ts) (not `sanity/structure.ts`) so it does not shadow the npm package path `sanity/structure`.
-
-## Fallback content
-
-If Sanity env vars are missing, the site still builds and renders using built-in fallbacks in [`src/lib/cms.ts`](src/lib/cms.ts) and placeholders in [`src/lib/content.ts`](src/lib/content.ts).
-
-## CMS document types
-
-- Singletons (fixed IDs): `home-page`, `about-page`, `process-page`, `contact-page`, `work-page`, `partners-page`, `site-settings`
-- Collections: `project`, `partner`, `formSubmission` (contact form writes here when a write token is set)
+Set `SPLASH_MODE=true` and `NEXT_PUBLIC_SPLASH_MODE=true` in `.env.local` to serve the IWP coming-soon homepage only.

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { PortableText } from "@/components/portable-text";
 import { SplashHome } from "@/components/splash-home";
 import { getFeaturedProjects, getHomePage } from "@/lib/cms";
 import { isSplashMode } from "@/lib/splash";
@@ -117,13 +116,7 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-2 lg:px-8">
           <div>
             <h2 className="text-3xl lg:text-4xl">What we do</h2>
-            {home.whatWeDoBlocks?.length ? (
-              <div className="mt-4 text-lg leading-relaxed text-coastal-muted">
-                <PortableText value={home.whatWeDoBlocks} />
-              </div>
-            ) : (
-              <p className="mt-4 text-lg leading-relaxed text-coastal-muted">{home.whatWeDoPlain}</p>
-            )}
+            <p className="mt-4 text-lg leading-relaxed text-coastal-muted">{home.whatWeDoPlain}</p>
           </div>
           <div>
             <h2 className="text-3xl lg:text-4xl">The TCH difference</h2>
@@ -142,11 +135,7 @@ export default async function HomePage() {
         <h2 className="text-3xl lg:text-4xl">{home.aboutPreviewHeading}</h2>
         <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start">
           <div className="max-w-3xl text-lg text-coastal-muted">
-            {home.aboutPreviewBlocks?.length ? (
-              <PortableText value={home.aboutPreviewBlocks} />
-            ) : (
-              <p>{home.aboutPreviewPlain}</p>
-            )}
+            <p>{home.aboutPreviewPlain}</p>
           </div>
           {home.aboutPreviewPhotoUrl ? (
             <Image

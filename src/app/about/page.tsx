@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { PortableText } from "@/components/portable-text";
 import { getAboutPage } from "@/lib/cms";
 import { buildBreadcrumbSchema, buildSchemaGraph, JsonLd, pageMetadata } from "@/lib/seo";
 
@@ -26,7 +25,9 @@ export default async function AboutPage() {
       <h1 className="text-4xl lg:text-5xl">About Joel Templeton</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-6 text-lg leading-relaxed text-coastal-muted">
-          <PortableText value={about.bio} />
+          {about.bio.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
           {about.teamMembers?.length ? (
             <div className="space-y-4 border-t border-coastal-line pt-6">
               <h2 className="text-2xl text-coastal-ink">Team</h2>
@@ -51,9 +52,9 @@ export default async function AboutPage() {
               </ul>
             </div>
           ) : null}
-          {about.credentials?.length ? (
+          {about.credentials ? (
             <div className="border-t border-coastal-line pt-6">
-              <PortableText value={about.credentials} />
+              <p>{about.credentials}</p>
             </div>
           ) : null}
         </div>

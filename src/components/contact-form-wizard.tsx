@@ -63,7 +63,7 @@ export function ContactFormWizard({ appearance = "default", onExpandedChange }: 
   );
 
   useEffect(() => {
-    onExpandedChange?.(Boolean(role) || status === "success");
+    onExpandedChange?.(Boolean(role) && status !== "success");
   }, [role, status, onExpandedChange]);
 
   useEffect(() => {
