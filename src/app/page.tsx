@@ -20,7 +20,7 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   if (isSplashMode()) {
     return pageMetadata({
-      title: `${SITE_NAME} — Coming Soon`,
+      title: `${SITE_NAME} — Learn More`,
       description:
         "Itibari, Waynne & Partners — bringing stories to life. Something extraordinary is on the way.",
       path: "/",
